@@ -58,3 +58,10 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ url: `/uploads/${filename}` });
   }
 }
+
+export const config = {
+  api: {
+    bodyParser: false,
+    responseLimit: false,
+  },
+};
