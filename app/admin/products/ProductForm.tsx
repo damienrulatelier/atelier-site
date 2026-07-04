@@ -162,22 +162,34 @@ export default function ProductForm({
   async function handleImageUpload(files: FileList | null) {
     if (!files?.length) return;
     setUploading(true);
+    const newUrls: string[] = [];
+
     for (const file of Array.from(files)) {
-      const fd = new FormData();
-      fd.append("file", file);
       try {
-        const res = await fetch("/api/admin/upload", { method: "POST", body: fd });
-        if (res.ok) {
-          const { url } = await res.json();
-          setValues(prev => ({ ...prev, images: [...prev.images, url] }));
+        const sigRes = await fetch("/api/admin/upload", { method: "GET" });
+        const sigData = await sigRes.json();
+
+        if (sigData.cloudName) {
+          const fd = new FormData();
+          fd.append("file", file);
+          fd.append("api_key", sigData.apiKey);
+          fd.append("timestamp", String(sigData.timestamp));
+          fd.append("signature", sigData.signature);
+          fd.append("folder", sigData.folder);
+          const res = await fetch(`https://api.cloudinary.com/v1_1/${sigData.cloudName}/image/upload`, { method: "POST", body: fd });
+          const data = await res.json();
+          if (data.secure_url) newUrls.push(data.secure_url);
+          else alert("Erreur Cloudinary: " + (data.error?.message || "inconnue"));
         } else {
-          const err = await res.json().catch(() => ({}));
-          alert("Erreur upload : " + (err.error || res.status));
+          const fd = new FormData();
+          fd.append("file", file);
+          const res = await fetch("/api/admin/upload", { method: "POST", body: fd });
+          if (res.ok) { const { url } = await res.json(); newUrls.push(url); }
         }
-      } catch (e) {
-        alert("Erreur réseau : " + e);
-      }
+      } catch (e) { alert("Erreur upload: " + e); }
     }
+
+    if (newUrls.length > 0) setValues(prev => ({ ...prev, images: [...prev.images, ...newUrls] }));
     setUploading(false);
   }
 
@@ -408,13 +420,21 @@ export default function ProductForm({
                 if (!e.target.files?.length) return;
                 setUploading(true);
                 for (const file of Array.from(e.target.files)) {
-                  const fd = new FormData();
-                  fd.append("file", file as Blob);
-                  const res = await fetch("/api/admin/upload", { method: "POST", body: fd });
-                  if (res.ok) {
-                    const { url } = await res.json();
-                    setValues(prev => ({ ...prev, imagesOriginal: [...(prev.imagesOriginal || []), url] }));
-                  }
+                  try {
+                    const sigRes = await fetch("/api/admin/upload", { method: "GET" });
+                    const sigData = await sigRes.json();
+                    if (sigData.cloudName) {
+                      const fd = new FormData();
+                      fd.append("file", file as Blob);
+                      fd.append("api_key", sigData.apiKey);
+                      fd.append("timestamp", String(sigData.timestamp));
+                      fd.append("signature", sigData.signature);
+                      fd.append("folder", sigData.folder);
+                      const res = await fetch(`https://api.cloudinary.com/v1_1/${sigData.cloudName}/image/upload`, { method: "POST", body: fd });
+                      const data = await res.json();
+                      if (data.secure_url) setValues(prev => ({ ...prev, imagesOriginal: [...(prev.imagesOriginal || []), data.secure_url] }));
+                    }
+                  } catch { /* silencieux */ }
                 }
                 setUploading(false);
               }} className="text-sm text-[#8C8780]" />
