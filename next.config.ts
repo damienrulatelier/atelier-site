@@ -9,6 +9,7 @@ const nextConfig: NextConfig = {
     imageSizes: [64, 128, 256, 512],
     remotePatterns: [
       { protocol: "https", hostname: "res.cloudinary.com" },
+      { protocol: "https", hostname: "**.cloudinary.com" },
     ],
   },
   experimental: {

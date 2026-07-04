@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { isAdminAuthenticated } from "@/lib/require-admin";
 
+export const maxDuration = 60;
+
 const USE_CLOUDINARY = !!(process.env.CLOUDINARY_CLOUD_NAME && process.env.CLOUDINARY_API_SECRET);
 
 export async function POST(req: NextRequest) {
@@ -15,7 +17,6 @@ export async function POST(req: NextRequest) {
   const buffer = Buffer.from(await file.arrayBuffer());
 
   if (USE_CLOUDINARY) {
-    // Upload vers Cloudinary
     const { v2: cloudinary } = await import("cloudinary");
     cloudinary.config({
       cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -23,7 +24,6 @@ export async function POST(req: NextRequest) {
       api_secret: process.env.CLOUDINARY_API_SECRET,
     });
 
-    // Convertir buffer en base64
     const base64 = `data:image/jpeg;base64,${buffer.toString("base64")}`;
 
     const result = await cloudinary.uploader.upload(base64, {
@@ -34,7 +34,6 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ url: result.secure_url });
   } else {
-    // Fallback local (développement sans Cloudinary)
     const fs = await import("fs");
     const path = await import("path");
     const sharp = (await import("sharp")).default;
@@ -58,10 +57,3 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ url: `/uploads/${filename}` });
   }
 }
-
-export const config = {
-  api: {
-    bodyParser: false,
-    responseLimit: false,
-  },
-};
