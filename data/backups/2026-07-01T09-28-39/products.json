@@ -1,0 +1,106 @@
+{
+  "products": [
+    {
+      "id": "p1",
+      "title": "Lumière de l'aube",
+      "type": "print",
+      "medium": "Tirage pigmentaire",
+      "size": "",
+      "edition": "17/20",
+      "price": 38,
+      "description": "Tirage numéroté sur papier et toile coton 250g.",
+      "images": [
+        "/uploads/1782571693307_3liqhh.jpg",
+        "/uploads/1782571699245_cltr6u.jpg",
+        "/uploads/1782571703362_q9qyto.jpg"
+      ],
+      "allowDedication": false,
+      "active": true,
+      "createdAt": "2026-06-01T10:00:00.000Z",
+      "featured": true,
+      "editionType": "reproduction",
+      "pricesBySize": {
+        "A5": 15,
+        "A4": 30,
+        "A3": 40,
+        "A2": 47,
+        "A6": 38
+      },
+      "canvasEnabled": true,
+      "canvasPrice": 0,
+      "enabledSizes": [
+        "A4",
+        "A3",
+        "A2",
+        "A5"
+      ],
+      "canvasSize": "30 × 40 cm",
+      "canvasPricesBySize": {
+        "A6": 0,
+        "A5": 0,
+        "A4": 45,
+        "A3": 55,
+        "A2": 64
+      },
+      "canvasEnabledSizes": [
+        "A4",
+        "A3",
+        "A2"
+      ],
+      "wallPreviewEnabled": true,
+      "originalPrice": 0,
+      "editionTotal": 0,
+      "editionSold": 0,
+      "digitalPrice": 12
+    },
+    {
+      "id": "bd1",
+      "title": "Tide Life",
+      "type": "bd",
+      "medium": "BD dédicacée ·28 pages",
+      "size": "A5",
+      "edition": "",
+      "price": 9.98,
+      "description": "Un petit village de riziculteurs est sur le point d’être submergé. Que va-t-il arriver à ses habitants ?\nEntre humour accentué par la gravité et l'accumulation des évènements, notre couple Elmsi et Louisa nous montre ce qu'il se passe quand on est trop centré sur soi...\nBD sans prise de tête avec un visuel poussé et détaillé.",
+      "images": [
+        "/uploads/1782577056621_znt5el.png",
+        "/uploads/1782577060409_1yzm3b.png",
+        "/uploads/1782577074654_c8t12f.png"
+      ],
+      "allowDedication": true,
+      "active": true,
+      "createdAt": "2026-06-01T10:00:00.000Z",
+      "featured": false,
+      "editionType": "reproduction",
+      "pricesBySize": {
+        "A5": 24,
+        "A4": 24,
+        "A3": 24,
+        "A2": 24,
+        "A6": 24
+      },
+      "canvasEnabled": false,
+      "canvasPrice": 0,
+      "enabledSizes": [
+        "A5",
+        "A4",
+        "A3",
+        "A2"
+      ],
+      "canvasSize": "30 × 40 cm",
+      "canvasPricesBySize": {
+        "A6": 0,
+        "A5": 0,
+        "A4": 0,
+        "A3": 0,
+        "A2": 0
+      },
+      "canvasEnabledSizes": [],
+      "wallPreviewEnabled": false,
+      "originalPrice": 0,
+      "editionTotal": 100,
+      "editionSold": 0,
+      "digitalPrice": 0
+    }
+  ]
+}

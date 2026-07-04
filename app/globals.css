@@ -1,0 +1,53 @@
+@import "tailwindcss";
+
+:root {
+  --paper: #FAFAF8;
+  --paper-dim: #F2F0EA;
+  --ink: #181614;
+  --ink-soft: #3A3631;
+  --stone: #8C8780;
+  --stone-line: #DEDAD1;
+  --accent: #B23A24;
+  --accent-soft: #E8D9D3;
+}
+
+@theme inline {
+  --color-paper: var(--paper);
+  --color-paper-dim: var(--paper-dim);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-stone: var(--stone);
+  --color-stone-line: var(--stone-line);
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: -apple-system, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+}
+
+.font-serif {
+  font-family: "Iowan Old Style", "Palatino Linotype", "Georgia", serif;
+}
+
+.font-mono {
+  font-family: "SF Mono", "Courier New", monospace;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
+}

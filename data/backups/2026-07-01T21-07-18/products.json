@@ -1,0 +1,278 @@
+{
+  "products": [
+    {
+      "id": "p1",
+      "title": "Lumière de l'aube",
+      "type": "print",
+      "medium": "Tirage pigmentaire",
+      "size": "",
+      "edition": "17/20",
+      "price": 38,
+      "description": "Tirage numéroté sur papier et toile coton 250g.",
+      "images": [
+        "/uploads/1782571693307_3liqhh.jpg",
+        "/uploads/1782571699245_cltr6u.jpg",
+        "/uploads/1782571703362_q9qyto.jpg"
+      ],
+      "allowDedication": false,
+      "active": true,
+      "createdAt": "2026-06-01T10:00:00.000Z",
+      "featured": true,
+      "editionType": "reproduction",
+      "wallPreviewEnabled": true,
+      "editionTotal": 0,
+      "editionSold": 0,
+      "delivery": {
+        "email": {
+          "enabled": true,
+          "price": 12
+        },
+        "print": {
+          "enabled": true,
+          "sizes": {
+            "A6": {
+              "enabled": false,
+              "price": 0
+            },
+            "A5": {
+              "enabled": true,
+              "price": 15
+            },
+            "A4": {
+              "enabled": true,
+              "price": 30
+            },
+            "A3": {
+              "enabled": true,
+              "price": 40
+            },
+            "A2": {
+              "enabled": true,
+              "price": 47
+            }
+          }
+        },
+        "original": {
+          "enabled": false,
+          "price": 0
+        },
+        "printEmail": {
+          "enabled": false,
+          "sizes": {
+            "A6": {
+              "enabled": false,
+              "price": 0
+            },
+            "A5": {
+              "enabled": false,
+              "price": 0
+            },
+            "A4": {
+              "enabled": false,
+              "price": 0
+            },
+            "A3": {
+              "enabled": false,
+              "price": 0
+            },
+            "A2": {
+              "enabled": false,
+              "price": 0
+            }
+          }
+        },
+        "originalEmail": {
+          "enabled": false,
+          "price": 0
+        },
+        "originalPrint": {
+          "enabled": false,
+          "sizes": {
+            "A6": {
+              "enabled": false,
+              "price": 0
+            },
+            "A5": {
+              "enabled": false,
+              "price": 0
+            },
+            "A4": {
+              "enabled": false,
+              "price": 0
+            },
+            "A3": {
+              "enabled": false,
+              "price": 0
+            },
+            "A2": {
+              "enabled": false,
+              "price": 0
+            }
+          }
+        },
+        "originalPrintEmail": {
+          "enabled": false,
+          "sizes": {
+            "A6": {
+              "enabled": false,
+              "price": 0
+            },
+            "A5": {
+              "enabled": false,
+              "price": 0
+            },
+            "A4": {
+              "enabled": false,
+              "price": 0
+            },
+            "A3": {
+              "enabled": false,
+              "price": 0
+            },
+            "A2": {
+              "enabled": false,
+              "price": 0
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "bd1",
+      "title": "Tide Life",
+      "type": "bd",
+      "medium": "BD dédicacée · 28 pages",
+      "size": "A5",
+      "edition": "",
+      "price": 9.98,
+      "description": "Un petit village de riziculteurs est sur le point d'être submergé. Que va-t-il arriver à ses habitants ?\nEntre humour accentué par la gravité et l'accumulation des évènements, notre couple Elmsi et Louisa nous montre ce qu'il se passe quand on est trop centré sur soi...\nBD sans prise de tête avec un visuel poussé et détaillé.",
+      "images": [
+        "/uploads/1782577056621_znt5el.png",
+        "/uploads/1782577060409_1yzm3b.png",
+        "/uploads/1782577074654_c8t12f.png"
+      ],
+      "allowDedication": true,
+      "active": true,
+      "createdAt": "2026-06-01T10:00:00.000Z",
+      "featured": false,
+      "editionType": "reproduction",
+      "wallPreviewEnabled": false,
+      "editionTotal": 100,
+      "editionSold": 0,
+      "delivery": {
+        "email": {
+          "enabled": false,
+          "price": 0
+        },
+        "print": {
+          "enabled": true,
+          "sizes": {
+            "A6": {
+              "enabled": false,
+              "price": 0
+            },
+            "A5": {
+              "enabled": true,
+              "price": 9.98
+            },
+            "A4": {
+              "enabled": false,
+              "price": 0
+            },
+            "A3": {
+              "enabled": false,
+              "price": 0
+            },
+            "A2": {
+              "enabled": false,
+              "price": 0
+            }
+          }
+        },
+        "original": {
+          "enabled": false,
+          "price": 0
+        },
+        "printEmail": {
+          "enabled": false,
+          "sizes": {
+            "A6": {
+              "enabled": false,
+              "price": 0
+            },
+            "A5": {
+              "enabled": false,
+              "price": 0
+            },
+            "A4": {
+              "enabled": false,
+              "price": 0
+            },
+            "A3": {
+              "enabled": false,
+              "price": 0
+            },
+            "A2": {
+              "enabled": false,
+              "price": 0
+            }
+          }
+        },
+        "originalEmail": {
+          "enabled": false,
+          "price": 0
+        },
+        "originalPrint": {
+          "enabled": false,
+          "sizes": {
+            "A6": {
+              "enabled": false,
+              "price": 0
+            },
+            "A5": {
+              "enabled": false,
+              "price": 0
+            },
+            "A4": {
+              "enabled": false,
+              "price": 0
+            },
+            "A3": {
+              "enabled": false,
+              "price": 0
+            },
+            "A2": {
+              "enabled": false,
+              "price": 0
+            }
+          }
+        },
+        "originalPrintEmail": {
+          "enabled": false,
+          "sizes": {
+            "A6": {
+              "enabled": false,
+              "price": 0
+            },
+            "A5": {
+              "enabled": false,
+              "price": 0
+            },
+            "A4": {
+              "enabled": false,
+              "price": 0
+            },
+            "A3": {
+              "enabled": false,
+              "price": 0
+            },
+            "A2": {
+              "enabled": false,
+              "price": 0
+            }
+          }
+        }
+      }
+    }
+  ]
+}
