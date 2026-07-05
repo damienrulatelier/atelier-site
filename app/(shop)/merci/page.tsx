@@ -2,7 +2,7 @@ import Link from "next/link";
 import fs from "fs";
 import path from "path";
 import { stripe, isStripeConfigured } from "@/lib/stripe";
-import { incrementEditionSold, getProductById } from "@/lib/products";
+import { incrementEditionSold, getProductByIdAsync } from "@/lib/products";
 import { confirmReservation } from "@/lib/reservations";
 import { recordLimitedPurchase } from "@/lib/limited-editions";
 import { saveCustomerOrder, orderAlreadySaved } from "@/lib/customers";
@@ -67,7 +67,7 @@ async function getStripeSessionStatus(sessionId: string | undefined) {
 // lib/reservations.ts), pour les produits à édition limitée. Pour les
 // produits sans système de réservation actif côté client (anciens flux,
 // ou hors prints numérotés), on retombe sur l'ancien décompte direct.
-function applyEditionDecrement(
+async function applyEditionDecrement(
   sessionId: string,
   metadata?: Record<string, string> | null,
   customerEmail?: string,
@@ -94,7 +94,7 @@ function applyEditionDecrement(
 
       // Si c'est un tirage limité temporaire, on enregistre l'achat
       // pour l'attribution des numéros définitifs à la clôture.
-      const product = getProductById(item.id);
+      const product = await getProductByIdAsync(item.id);
       if (product?.temporaryUntil && product.editionTotal > 0 && customerEmail) {
         recordLimitedPurchase(item.id, customerEmail, customerName || "", item.qty);
       }

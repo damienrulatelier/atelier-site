@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
-import { getActiveProducts } from "@/lib/products";
+import { getActiveProductsAsync } from "@/lib/products";
 
 export async function GET() {
-  return NextResponse.json({ products: getActiveProducts() });
+  const products = await getActiveProductsAsync();
+  return NextResponse.json({ products });
 }
