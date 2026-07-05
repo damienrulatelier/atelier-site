@@ -163,32 +163,26 @@ export default function ProductForm({
     if (!files?.length) return;
     setUploading(true);
     const newUrls: string[] = [];
-
-    for (const file of Array.from(files)) {
-      try {
-        const sigRes = await fetch("/api/admin/upload", { method: "GET" });
-        const sigData = await sigRes.json();
-
-        if (sigData.cloudName) {
-          const fd = new FormData();
-          fd.append("file", file);
-          fd.append("api_key", sigData.apiKey);
-          fd.append("timestamp", String(sigData.timestamp));
-          fd.append("signature", sigData.signature);
-          fd.append("folder", sigData.folder);
-          const res = await fetch(`https://api.cloudinary.com/v1_1/${sigData.cloudName}/image/upload`, { method: "POST", body: fd });
-          const data = await res.json();
-          if (data.secure_url) newUrls.push(data.secure_url);
-          else alert("Erreur Cloudinary: " + (data.error?.message || "inconnue"));
-        } else {
-          const fd = new FormData();
-          fd.append("file", file);
-          const res = await fetch("/api/admin/upload", { method: "POST", body: fd });
-          if (res.ok) { const { url } = await res.json(); newUrls.push(url); }
-        }
-      } catch (e) { alert("Erreur upload: " + e); }
-    }
-
+    try {
+      const sigRes = await fetch("/api/admin/upload", { method: "GET" });
+      if (!sigRes.ok) throw new Error("Erreur signature: " + sigRes.status);
+      const sig = await sigRes.json();
+      for (const file of Array.from(files)) {
+        const fd = new FormData();
+        fd.append("file", file as Blob);
+        fd.append("api_key", sig.apiKey);
+        fd.append("timestamp", String(sig.timestamp));
+        fd.append("signature", sig.signature);
+        fd.append("folder", sig.folder);
+        const res = await fetch(
+          `https://api.cloudinary.com/v1_1/${sig.cloudName}/image/upload`,
+          { method: "POST", body: fd }
+        );
+        const data = await res.json();
+        if (data.secure_url) newUrls.push(data.secure_url);
+        else alert("Erreur Cloudinary: " + JSON.stringify(data.error || data));
+      }
+    } catch (e) { alert("Erreur: " + String(e)); }
     if (newUrls.length > 0) setValues(prev => ({ ...prev, images: [...prev.images, ...newUrls] }));
     setUploading(false);
   }
