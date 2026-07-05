@@ -201,15 +201,19 @@ export default function ProductForm({
           ...values,
           linkedProductId: values.linkedProductId || undefined,
           temporaryUntil: values.temporaryUntil || undefined,
+          retireAt: values.retireAt || undefined,
         }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Erreur inconnue");
+      if (!res.ok) {
+        setError(data.error || "Erreur inconnue");
+        setSaving(false);
+        return;
+      }
       router.push("/admin/products");
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Erreur");
-    } finally {
+      setError(err instanceof Error ? err.message : "Erreur réseau — vérifie ta connexion.");
       setSaving(false);
     }
   }
