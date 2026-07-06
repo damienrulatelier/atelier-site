@@ -100,6 +100,33 @@ export default function CommissionsPage() {
   const [delivery, setDelivery] = useState<"physique" | "mail">("physique");
   const [deliveryDigital, setDeliveryDigital] = useState<"email" | "print">("print");
   const [refFiles, setRefFiles] = useState<File[]>([]);
+  const [refUrls, setRefUrls] = useState<string[]>([]);
+  const [uploadingRef, setUploadingRef] = useState(false);
+
+  async function handleRefFilesChange(newFiles: File[]) {
+    setRefFiles(prev => [...prev, ...newFiles]);
+    setUploadingRef(true);
+    const uploaded: string[] = [];
+    for (const file of newFiles) {
+      try {
+        const sigRes = await fetch("/api/upload-signature", { method: "GET" });
+        const sig = await sigRes.json();
+        if (sig.cloudName) {
+          const fd = new FormData();
+          fd.append("file", file as Blob);
+          fd.append("api_key", sig.apiKey);
+          fd.append("timestamp", String(sig.timestamp));
+          fd.append("signature", sig.signature);
+          fd.append("folder", sig.folder);
+          const res = await fetch(`https://api.cloudinary.com/v1_1/${sig.cloudName}/image/upload`, { method: "POST", body: fd });
+          const data = await res.json();
+          if (data.secure_url) uploaded.push(data.secure_url);
+        }
+      } catch { /* silencieux */ }
+    }
+    setRefUrls(prev => [...prev, ...uploaded]);
+    setUploadingRef(false);
+  }
   const [description, setDescription] = useState("");
   const [formats, setFormats] = useState("");
   const [printQtys, setPrintQtys] = useState<Partial<Record<PrintSizeKey, number>>>({});
@@ -158,28 +185,7 @@ export default function CommissionsPage() {
     setSubmitting(true);
 
     // Uploader la photo de référence vers Cloudinary directement depuis le navigateur
-    const referenceUrls: string[] = [];
-    if (refFiles.length > 0) {
-      for (const file of refFiles) {
-        try {
-          const sigRes = await fetch("/api/upload-signature", { method: "GET" });
-          const sig = await sigRes.json();
-          if (sig.cloudName) {
-            const fd = new FormData();
-            fd.append("file", file as Blob);
-            fd.append("api_key", sig.apiKey);
-            fd.append("timestamp", String(sig.timestamp));
-            fd.append("signature", sig.signature);
-            fd.append("folder", sig.folder);
-            const res = await fetch(`https://api.cloudinary.com/v1_1/${sig.cloudName}/image/upload`, { method: "POST", body: fd });
-            const data = await res.json();
-            if (data.secure_url) referenceUrls.push(data.secure_url);
-            else console.error("Cloudinary error:", data);
-          }
-        } catch (e) { console.error("Upload photo erreur:", e); }
-      }
-    }
-    const referenceUrl = referenceUrls.join(",");
+    const referenceUrl = refUrls.join(",");
 
     const printsSummary  = PRINT_SIZES.filter(k => (printQtys[k] || 0) > 0).map(k => `${printQtys[k]}× Print ${k} (${fmt2(PRINT_PRICES[k] * (printQtys[k] || 0))})`).join(", ");
     const digitalSummary = isDigital ? `${medium === "lesdeux" ? "Les deux" : "Digital"} ${digitalSize} ${color === "nb" ? "N&B" : "Couleur"}` : "";
@@ -444,17 +450,22 @@ export default function CommissionsPage() {
             <label className={`flex flex-col items-center justify-center gap-2 border-2 border-dashed transition-colors cursor-pointer p-6 text-center ${category === "reference" && refFiles.length === 0 ? "border-[#B23A24]/40 hover:border-[#B23A24]" : "border-[#DEDAD1] hover:border-[#181614]"}`}>
               <span className="text-2xl">📎</span>
               <span className="text-sm font-medium text-[#3A3631]">
-                {refFiles.length > 0 ? `${refFiles.length} photo${refFiles.length > 1 ? "s" : ""} sélectionnée${refFiles.length > 1 ? "s" : ""}` : "Clique pour ajouter des photos"}
+                {uploadingRef ? "Upload en cours…" : refFiles.length > 0 ? `${refFiles.length} photo${refFiles.length > 1 ? "s" : ""} sélectionnée${refFiles.length > 1 ? "s" : ""}` : "Clique pour ajouter des photos"}
               </span>
-              <span className="text-xs text-[#8C8780]">JPG, PNG, capture d&rsquo;écran… — plusieurs photos possibles</span>
-              <input ref={fileRef} type="file" accept="image/*" multiple onChange={e => setRefFiles(prev => [...prev, ...Array.from(e.target.files || [])])} className="hidden" />
+              <span className="text-xs text-[#8C8780]">JPG, PNG, capture d&rsquo;écran… — autant que tu veux</span>
+              <input ref={fileRef} type="file" accept="image/*" multiple onChange={e => handleRefFilesChange(Array.from(e.target.files || []))} className="hidden" />
             </label>
             {refFiles.length > 0 && (
               <div className="flex flex-col gap-1 mt-2">
                 {refFiles.map((f, i) => (
                   <div key={i} className="flex items-center justify-between px-3 py-2 bg-[#F2F0EA] border border-[#DEDAD1]">
-                    <span className="text-xs text-[#3A7D44] font-medium">✓ {f.name}</span>
-                    <button type="button" onClick={() => setRefFiles(prev => prev.filter((_, j) => j !== i))} className="text-xs text-[#8C8780] hover:text-[#B23A24]">Supprimer</button>
+                    <span className="text-xs font-medium">
+                      {refUrls[i] ? <span className="text-[#3A7D44]">✓ {f.name}</span> : <span className="text-[#8C8780]">⏳ {f.name}</span>}
+                    </span>
+                    <button type="button" onClick={() => {
+                      setRefFiles(prev => prev.filter((_, j) => j !== i));
+                      setRefUrls(prev => prev.filter((_, j) => j !== i));
+                    }} className="text-xs text-[#8C8780] hover:text-[#B23A24]">Supprimer</button>
                   </div>
                 ))}
               </div>
