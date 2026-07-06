@@ -447,7 +447,7 @@ export default function CommissionsPage() {
                 {refFiles.length > 0 ? `${refFiles.length} photo${refFiles.length > 1 ? "s" : ""} sélectionnée${refFiles.length > 1 ? "s" : ""}` : "Clique pour ajouter des photos"}
               </span>
               <span className="text-xs text-[#8C8780]">JPG, PNG, capture d&rsquo;écran… — plusieurs photos possibles</span>
-              <input ref={fileRef} type="file" accept="image/*" multiple onChange={e => setRefFiles(Array.from(e.target.files || []))} className="hidden" />
+              <input ref={fileRef} type="file" accept="image/*" multiple onChange={e => setRefFiles(prev => [...prev, ...Array.from(e.target.files || [])])} className="hidden" />
             </label>
             {refFiles.length > 0 && (
               <div className="flex flex-col gap-1 mt-2">
