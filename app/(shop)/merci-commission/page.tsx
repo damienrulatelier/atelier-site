@@ -55,7 +55,9 @@ async function confirmAndNotify(commissionId: string, sessionId: string) {
         ${rows.map(([k, v]) => `<tr><td style="padding:6px;border:1px solid #ddd;font-weight:bold">${k}</td><td style="padding:6px;border:1px solid #ddd">${v}</td></tr>`).join("")}
       </table>` : ""}
       ${c?.description ? `<h3>Description</h3><p style="white-space:pre-wrap">${c.description}</p>` : ""}
-      ${c?.referencePath ? `<p>📎 <a href="${c.referencePath}">Voir la photo de référence</a></p>` : ""}
+      ${c?.referencePath ? c.referencePath.split(",").map((url: string, i: number) => 
+        `<p>📎 <a href="${url}">Photo de référence ${c.referencePath.split(",").length > 1 ? i+1 : ""}</a></p>`
+      ).join("") : ""}
       <p><strong>Commission ID :</strong> ${commissionId}</p>
     `;
 

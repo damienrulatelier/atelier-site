@@ -148,7 +148,9 @@ async function sendEmail(commission: Record<string, string>, referencePath: stri
     </table>
     <h3>Description</h3>
     <p style="white-space:pre-wrap">${c.description}</p>
-    ${referencePath ? `<p>📎 <a href="${referencePath}">Voir la photo de référence</a></p>` : ""}
+    ${referencePath ? referencePath.split(",").map((url, i) => 
+      `<p>📎 <a href="${url}">Photo de référence${referencePath.split(",").length > 1 ? ` ${i+1}` : ""}</a></p>`
+    ).join("") : ""}
   `;
 
   await resend.emails.send({
