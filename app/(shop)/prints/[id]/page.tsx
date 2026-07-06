@@ -197,10 +197,11 @@ export default function PrintDetailPage() {
             {(() => {
               const hasOriginalPhotos = (product.imagesOriginal || []).length > 0;
               const hasPrintPhotos = (product.imagesPrint || []).length > 0;
+              const fromOriginals = typeof window !== "undefined" && new URLSearchParams(window.location.search).get("from") === "originals";
               const hasTabs = hasOriginalPhotos && hasPrintPhotos;
               const activePhotos = hasTabs
                 ? (photoTab === "original" ? product.imagesOriginal! : product.imagesPrint!)
-                : hasOriginalPhotos
+                : fromOriginals && hasOriginalPhotos
                 ? product.imagesOriginal!
                 : product.images;
 

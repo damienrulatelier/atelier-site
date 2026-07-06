@@ -102,8 +102,8 @@ export default function ProductGrid({ products, context }: { products: Product[]
       <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-5 xl:gap-6">
         {products.map((p) => {
           const isOriginal = p.type === "original";
-          // Lien différent selon le type : les originaux ont leur propre page.
-          const href = isOriginal ? `/originals/${p.id}` : `/prints/${p.id}`;
+          const baseHref = isOriginal ? `/originals/${p.id}` : `/prints/${p.id}`;
+          const href = context === "originals" ? `${baseHref}?from=originals` : baseHref;
           // Distinction visuelle : bordure terracotta pour les originaux,
           // papier classique pour les prints numérotés.
           // Bordure rouge uniquement dans la section Originaux
