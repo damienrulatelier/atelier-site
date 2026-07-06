@@ -66,8 +66,8 @@ export default function HomePage() {
     p.delivery?.print?.enabled &&
     p.type !== "bd"
   ) || [];
-  // Un produit de type original apparaît dans Originaux
-  const originals = products?.filter((p) => p.type === "original") || [];
+  // Un produit apparaît dans Originaux si son type est "original" OU si la livraison original est activée
+  const originals = products?.filter((p) => p.type === "original" || p.delivery?.original?.enabled) || [];
   const bdItems = products?.filter((p) => p.type === "bd") || [];
   const featured = products ? products.find((p) => p.featured) || products[0] : undefined;
 
