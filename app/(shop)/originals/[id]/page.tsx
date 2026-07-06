@@ -49,7 +49,7 @@ export default function OriginalDetailPage() {
       .then((data) => {
         const all: Product[] = data.products || [];
         setAllProducts(all);
-        const found = all.find((p) => p.id === id && p.type === "original");
+        const found = all.find((p) => p.id === id && (p.type === "original" || p.delivery?.original?.enabled));
         if (!found) { setLoading(false); return; }
         setProduct(found);
         if (found.linkedProductId) {
@@ -68,7 +68,7 @@ export default function OriginalDetailPage() {
     </main>
   );
 
-  const otherOriginals = allProducts.filter((p) => p.type === "original" && p.id !== id && p.active);
+  const otherOriginals = allProducts.filter((p) => (p.type === "original" || p.delivery?.original?.enabled) && p.id !== id && p.active);
 
   return (
     <main>
