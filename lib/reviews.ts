@@ -27,6 +27,7 @@ function readReviews(): Review[] {
 }
 
 function writeReviews(reviews: Review[]) {
+  if (process.env.SUPABASE_URL) return;
   fs.mkdirSync(path.dirname(REVIEWS_PATH), { recursive: true });
   fs.writeFileSync(REVIEWS_PATH, JSON.stringify(reviews, null, 2));
 }

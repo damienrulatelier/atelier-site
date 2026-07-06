@@ -29,6 +29,7 @@ function markAsSent(sessionId: string) {
   }
   ids.push(sessionId);
   if (ids.length > 500) ids = ids.slice(-500);
+  if (process.env.SUPABASE_URL) return;
   fs.writeFileSync(PROCESSED_EMAIL_PATH, JSON.stringify(ids));
 }
 

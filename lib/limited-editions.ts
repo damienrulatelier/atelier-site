@@ -26,6 +26,7 @@ function readPurchases(): LimitedPurchase[] {
 }
 
 function writePurchases(p: LimitedPurchase[]) {
+  if (process.env.SUPABASE_URL) return;
   fs.mkdirSync(path.dirname(PURCHASES_PATH), { recursive: true });
   fs.writeFileSync(PURCHASES_PATH, JSON.stringify(p, null, 2));
 }

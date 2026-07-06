@@ -22,8 +22,11 @@ function read(): AbandonedCart[] {
 }
 
 function write(carts: AbandonedCart[]) {
-  fs.mkdirSync(path.dirname(CARTS_PATH), { recursive: true });
-  fs.writeFileSync(CARTS_PATH, JSON.stringify(carts, null, 2));
+  if (process.env.VERCEL || process.env.SUPABASE_URL) return;
+  try {
+    fs.mkdirSync(path.dirname(CARTS_PATH), { recursive: true });
+    fs.writeFileSync(CARTS_PATH, JSON.stringify(carts, null, 2));
+  } catch { /* silencieux */ }
 }
 
 // Enregistre ou met à jour le panier d'un client dès qu'il saisit son email

@@ -24,6 +24,7 @@ function readReservations(): EditionReservation[] {
 }
 
 function writeReservations(reservations: EditionReservation[]) {
+  if (process.env.SUPABASE_URL) return;
   fs.mkdirSync(path.dirname(RESERVATIONS_PATH), { recursive: true });
   fs.writeFileSync(RESERVATIONS_PATH, JSON.stringify(reservations, null, 2));
 }

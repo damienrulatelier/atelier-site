@@ -47,6 +47,7 @@ function readJson<T>(filePath: string, fallback: T): T {
 }
 
 function writeJson(filePath: string, data: unknown) {
+  if (process.env.SUPABASE_URL) return;
   fs.mkdirSync(path.dirname(filePath), { recursive: true });
   fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
 }

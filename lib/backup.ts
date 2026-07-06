@@ -60,10 +60,10 @@ function runBackup() {
 // Next.js peut importer ce module plusieurs fois (HMR en développement) —
 // le flag "initialized" garantit qu'on ne démarre qu'un seul minuteur.
 export function initBackupScheduler() {
+  // Désactivé sur Vercel — système de fichiers read-only
+  if (process.env.VERCEL || process.env.SUPABASE_URL) return;
   if (initialized) return;
   initialized = true;
-
-  // Première sauvegarde immédiate au démarrage.
   runBackup();
   const bkp = setInterval(runBackup, INTERVAL_MS);
   if (typeof bkp === 'object' && bkp !== null && 'unref' in bkp) (bkp as NodeJS.Timeout).unref();
