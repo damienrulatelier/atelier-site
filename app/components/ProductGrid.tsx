@@ -99,7 +99,7 @@ export default function ProductGrid({ products, context }: { products: Product[]
 
   return (
     <>
-      <div className="columns-2 md:columns-3 xl:columns-4 gap-4 md:gap-5 xl:gap-6 space-y-4 md:space-y-5 xl:space-y-6">
+      <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-5 xl:gap-6">
         {products.map((p) => {
           const isOriginal = p.type === "original";
           // Lien différent selon le type : les originaux ont leur propre page.
@@ -177,7 +177,11 @@ export default function ProductGrid({ products, context }: { products: Product[]
                 {/* Ligne nature + nouveauté + countdown — tout en un, jamais superposé */}
                 <div className="flex items-center gap-2 flex-wrap mt-0.5">
                   {/* Badge nature — dépend du contexte d'affichage */}
-                  {context === "prints" ? (
+                  {context === "originals" ? (
+                    <span className="font-mono text-[10px] px-2 py-0.5 bg-[#B23A24] text-white uppercase tracking-wide">
+                      Œuvre originale
+                    </span>
+                  ) : context === "prints" ? (
                     <span className="font-mono text-[10px] px-2 py-0.5 border border-[#DEDAD1] text-[#8C8780] uppercase tracking-wide">
                       Print
                     </span>
@@ -203,7 +207,7 @@ export default function ProductGrid({ products, context }: { products: Product[]
                       Épuisé
                     </span>
                   )}
-                  {isNew && !isSoldOut && (
+                  {isNew && !isSoldOut && context !== "originals" && (
                     <span className="font-mono text-[10px] px-2 py-0.5 bg-[#B23A24] text-white uppercase tracking-wide">
                       ✦ Nouveau
                     </span>
