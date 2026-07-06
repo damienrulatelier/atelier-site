@@ -305,7 +305,7 @@ export default function PrintDetailPage() {
             )}
 
             {/* Numéro réservé pour ce client, pour les prints numérotés */}
-            {product.type === "print" && product.editionTotal > 0 && (
+            {product.type === "print" && product.editionTotal > 0 && !fromOriginals && (
               <div className="mb-4">
                 <EditionNumberBadge
                   productId={product.id}
