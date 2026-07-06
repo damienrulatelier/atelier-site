@@ -491,11 +491,6 @@ export default function CommissionsPage() {
                 <span>Acompte croquis — demandé avant envoi du schéma, déduit du total si tu valides</span>
                 <span className="font-mono">{fmt2(deposit!)}</span>
               </div>
-              {!isDigital && (
-                <p className="text-xs text-[#8C8780] mt-3 pt-2 border-t border-[#DEDAD1]">
-                  🚚 Livraison calculée au paiement — Mondial Relay 4,90€ · À domicile 6,90€
-                </p>
-              )}
             </section>
           )}
 
