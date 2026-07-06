@@ -117,7 +117,8 @@ async function sendOrderConfirmationEmails(
   if (!metadata?.orderSummary) return;
   try {
     const lines = JSON.parse(metadata.orderSummary);
-    await fetch(`${origin}/api/order-confirmation`, {
+    console.log("[Merci] Envoi order-confirmation vers", `${origin}/api/order-confirmation`);
+    const res = await fetch(`${origin}/api/order-confirmation`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -129,8 +130,10 @@ async function sendOrderConfirmationEmails(
         shippingPrice: parseFloat(metadata.shippingPrice || "0"),
       }),
     });
-  } catch {
-    // On ne bloque jamais l'affichage de la page de confirmation pour autant.
+    const data = await res.json().catch(() => ({}));
+    console.log("[Merci] order-confirmation réponse:", res.status, JSON.stringify(data));
+  } catch (err) {
+    console.error("[Merci] order-confirmation erreur:", err);
   }
 }
 
