@@ -160,11 +160,11 @@ export default function CommissionsPage() {
     // Uploader la photo de référence vers Cloudinary directement depuis le navigateur
     const referenceUrls: string[] = [];
     if (refFiles.length > 0) {
-      try {
-        const sigRes = await fetch("/api/upload-signature", { method: "GET" });
-        const sig = await sigRes.json();
-        if (sig.cloudName) {
-          for (const file of refFiles) {
+      for (const file of refFiles) {
+        try {
+          const sigRes = await fetch("/api/upload-signature", { method: "GET" });
+          const sig = await sigRes.json();
+          if (sig.cloudName) {
             const fd = new FormData();
             fd.append("file", file as Blob);
             fd.append("api_key", sig.apiKey);
@@ -174,9 +174,10 @@ export default function CommissionsPage() {
             const res = await fetch(`https://api.cloudinary.com/v1_1/${sig.cloudName}/image/upload`, { method: "POST", body: fd });
             const data = await res.json();
             if (data.secure_url) referenceUrls.push(data.secure_url);
+            else console.error("Cloudinary error:", data);
           }
-        }
-      } catch (e) { console.error("Upload photos référence erreur:", e); }
+        } catch (e) { console.error("Upload photo erreur:", e); }
+      }
     }
     const referenceUrl = referenceUrls.join(",");
 
