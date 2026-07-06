@@ -41,6 +41,13 @@ export default function CommandePage() {
   const [shipping, setShipping] = useState<ShippingKey>("mondialrelay");
   const [payment, setPayment] = useState<PaymentKey>("card");
   const [submitting, setSubmitting] = useState(false);
+
+  // Réinitialiser si le client revient de Stripe
+  useEffect(() => {
+    const reset = () => setSubmitting(false);
+    window.addEventListener("focus", reset);
+    return () => window.removeEventListener("focus", reset);
+  }, []);
   const [cgvAccepted, setCgvAccepted] = useState(false);
   const [error, setError] = useState("");
   const [showCancelModal, setShowCancelModal] = useState(false);
