@@ -197,6 +197,12 @@ export default async function MerciPage({
       sessionResult?.customerEmail,
       sessionResult?.shippingAddress
     );
+    console.log("[Merci] sessionResult:", JSON.stringify({
+      isConfirmedPaid,
+      hasMetadata: !!sessionResult?.metadata,
+      hasOrderSummary: !!sessionResult?.metadata?.orderSummary,
+      customerEmail: sessionResult?.customerEmail,
+    }));
 
     saveOrderToCustomerHistory(session_id, sessionResult?.customerEmail, sessionResult?.metadata);
 
