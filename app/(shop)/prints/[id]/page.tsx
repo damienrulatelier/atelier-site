@@ -71,6 +71,7 @@ export default function PrintDetailPage() {
   const [wallPreviewOpen, setWallPreviewOpen] = useState(false);
   const [activeImage, setActiveImage] = useState(0);
   const [photoTab, setPhotoTab] = useState<"original" | "print">("original");
+  const fromOriginals = typeof window !== "undefined" && new URLSearchParams(window.location.search).get("from") === "originals";
   const [frameColor, setFrameColor] = useState("#181614");
 
   useEffect(() => {
@@ -197,7 +198,6 @@ export default function PrintDetailPage() {
             {(() => {
               const hasOriginalPhotos = (product.imagesOriginal || []).length > 0;
               const hasPrintPhotos = (product.imagesPrint || []).length > 0;
-              const fromOriginals = typeof window !== "undefined" && new URLSearchParams(window.location.search).get("from") === "originals";
               const hasTabs = hasOriginalPhotos && hasPrintPhotos;
               const activePhotos = hasTabs
                 ? (photoTab === "original" ? product.imagesOriginal! : product.imagesPrint!)
@@ -286,8 +286,8 @@ export default function PrintDetailPage() {
             <p className="font-mono text-[12px] uppercase tracking-wide text-[#8C8780] mb-6">
               {product.medium}
               {product.type === "original" && product.size ? ` · ${product.size}` : ""}
-              {product.type === "print" && product.edition ? ` · ${product.edition}` : ""}
-              {product.editionTotal > 0
+              {product.type === "print" && product.edition && !fromOriginals ? ` · ${product.edition}` : ""}
+              {product.type !== "original" && !fromOriginals && product.editionTotal > 0
                 ? ` · ${Math.max(product.editionTotal - product.editionSold, 0)}/${product.editionTotal} restants`
                 : ""}
             </p>
