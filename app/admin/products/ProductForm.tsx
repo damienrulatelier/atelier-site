@@ -261,6 +261,12 @@ export default function ProductForm({
               <input type="number" min="0" className={inputCls} value={values.editionTotal || ""} onChange={(e) => set("editionTotal", parseInt(e.target.value) || 0)} placeholder="0 = pas de limite" />
             </div>
           </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className={labelCls}>Exemplaires vendus <span className="font-normal text-[#8C8780] normal-case">(mis à jour auto à chaque vente)</span></label>
+              <input type="number" min="0" className={inputCls} value={values.editionSold || ""} onChange={(e) => set("editionSold", parseInt(e.target.value) || 0)} placeholder="0" />
+            </div>
+          </div>
         )}
         <div>
           <label className={labelCls}>Prix unique (BD / autre uniquement)</label>
