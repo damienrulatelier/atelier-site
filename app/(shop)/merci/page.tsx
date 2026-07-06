@@ -114,26 +114,77 @@ async function sendOrderConfirmationEmails(
   customerEmail?: string | null,
   shippingAddress?: Record<string, string | undefined>
 ) {
-  if (!metadata?.orderSummary) return;
+  if (!metadata?.orderSummary) {
+    console.log("[Merci] Pas d'orderSummary dans metadata");
+    return;
+  }
   try {
     const lines = JSON.parse(metadata.orderSummary);
-    console.log("[Merci] Envoi order-confirmation vers", `${origin}/api/order-confirmation`);
-    const res = await fetch(`${origin}/api/order-confirmation`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        sessionId,
-        customerEmail,
-        shippingAddress,
-        lines,
-        shippingLabel: metadata.shippingLabel || "Livraison",
-        shippingPrice: parseFloat(metadata.shippingPrice || "0"),
-      }),
+    console.log("[Merci] Appel direct sendEmail, email:", customerEmail);
+
+    // Import direct de Resend pour éviter le fetch self-referential sur Vercel
+    const { Resend } = await import("resend");
+    const resend = new Resend(process.env.RESEND_API_KEY);
+    const CONTACT_EMAIL = process.env.CONTACT_EMAIL || "damienrul34@gmail.com";
+
+    const fmt = (n: number) => n.toFixed(2).replace(".", ",") + " €";
+    const shippingPrice = parseFloat(metadata.shippingPrice || "0");
+    const subtotal = lines.reduce((s: number, l: { price: number; qty: number }) => s + l.price * l.qty, 0);
+    const total = subtotal + shippingPrice;
+
+    const linesHtml = lines.map((l: { title: string; price: number; qty: number; dedication: string }) => `
+      <tr>
+        <td style="padding:8px;border-bottom:1px solid #eee">${l.title}${l.dedication ? ` <em>(dédicace : ${l.dedication})</em>` : ""}</td>
+        <td style="padding:8px;border-bottom:1px solid #eee;text-align:center">${l.qty}</td>
+        <td style="padding:8px;border-bottom:1px solid #eee;text-align:right">${fmt(l.price * l.qty)}</td>
+      </tr>`).join("");
+
+    const html = `
+      <h2>Nouvelle commande — ${fmt(total)}</h2>
+      <p><strong>Client :</strong> ${customerEmail || "inconnu"}</p>
+      <table style="width:100%;border-collapse:collapse">
+        <thead><tr>
+          <th style="text-align:left;padding:8px;border-bottom:2px solid #181614">Produit</th>
+          <th style="text-align:center;padding:8px;border-bottom:2px solid #181614">Qté</th>
+          <th style="text-align:right;padding:8px;border-bottom:2px solid #181614">Prix</th>
+        </tr></thead>
+        <tbody>${linesHtml}</tbody>
+        <tfoot>
+          <tr><td colspan="2" style="padding:8px;text-align:right">Livraison</td><td style="padding:8px;text-align:right">${fmt(shippingPrice)}</td></tr>
+          <tr><td colspan="2" style="padding:8px;text-align:right;font-weight:bold">Total</td><td style="padding:8px;text-align:right;font-weight:bold">${fmt(total)}</td></tr>
+        </tfoot>
+      </table>
+      <p><strong>Session Stripe :</strong> ${sessionId}</p>
+    `;
+
+    // Mail à l'artiste
+    await resend.emails.send({
+      from: "Damien Rul · Atelier <no-reply@damienrulatelier.fr>",
+      to: CONTACT_EMAIL,
+      subject: `🛍️ Nouvelle commande — ${fmt(total)}`,
+      html,
     });
-    const data = await res.json().catch(() => ({}));
-    console.log("[Merci] order-confirmation réponse:", res.status, JSON.stringify(data));
+
+    // Mail de confirmation au client
+    if (customerEmail) {
+      await resend.emails.send({
+        from: "Damien Rul · Atelier <no-reply@damienrulatelier.fr>",
+        to: customerEmail,
+        subject: "Merci pour ta commande — Damien Rul Atelier",
+        html: `
+          <h2>Merci pour ta commande !</h2>
+          <p>Ta commande a bien été reçue et est en cours de préparation.</p>
+          ${linesHtml ? `<table style="width:100%;border-collapse:collapse"><thead><tr><th style="text-align:left;padding:8px">Produit</th><th style="text-align:center;padding:8px">Qté</th><th style="text-align:right;padding:8px">Prix</th></tr></thead><tbody>${linesHtml}</tbody></table>` : ""}
+          <p><strong>Total :</strong> ${fmt(total)}</p>
+          <p>Je te contacterai dès que ton colis sera expédié. N'hésite pas à me répondre si tu as des questions !</p>
+          <p>— Damien</p>
+        `,
+      });
+    }
+
+    console.log("[Merci] Emails envoyés avec succès");
   } catch (err) {
-    console.error("[Merci] order-confirmation erreur:", err);
+    console.error("[Merci] Erreur envoi email:", err);
   }
 }
 
