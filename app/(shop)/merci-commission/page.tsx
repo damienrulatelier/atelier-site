@@ -13,7 +13,6 @@ async function confirmAndNotify(commissionId: string, sessionId: string) {
     } catch { return false; }
   }
 
-  // Envoyer le mail directement avec les données de la session Stripe
   const resendKey = process.env.RESEND_API_KEY;
   const artistEmail = process.env.ARTIST_EMAIL || "damienrul34@gmail.com";
 
@@ -22,44 +21,59 @@ async function confirmAndNotify(commissionId: string, sessionId: string) {
     return true;
   }
 
-  // Récupérer les détails de la session Stripe pour avoir les metadata
-  let category = "";
-  let size = "";
-  let commissionDetails = "";
+  // Récupérer les données de la commission depuis Supabase
+  let commission: Record<string, string> | null = null;
+  try {
+    const { createClient } = await import("@supabase/supabase-js");
+    const sb = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_SERVICE_KEY!);
+    const { data } = await sb.from("commissions").select("data").eq("id", commissionId).single();
+    if (data?.data) commission = data.data;
+  } catch (e) { console.error("[MerciCommission] Supabase error:", e); }
 
-  if (stripeKey && sessionId && !sessionId.startsWith("mock")) {
-    try {
-      const stripe = (await import("stripe")).default;
-      const stripeClient = new stripe(stripeKey);
-      const session = await stripeClient.checkout.sessions.retrieve(sessionId);
-      const meta = session.metadata || {};
-      category = meta.category || "";
-      size = meta.size || "";
-      commissionDetails = meta.commissionId || commissionId;
-    } catch { /* silencieux */ }
-  }
+  const c = commission;
+  const rows = c ? [
+    ["Catégorie", c.category],
+    ["Format", c.size],
+    ["Rendu", c.color],
+    ["Médium", c.medium],
+    ["Prints", c.prints],
+    ["Digital", c.digital],
+    ["Formats souhaités", c.formats],
+    ["Prix estimé", c.estimatedPrice],
+    ["Acompte", c.deposit],
+  ].filter(([, v]) => v) : [];
 
   try {
     const { Resend } = await import("resend");
     const resend = new Resend(resendKey);
 
     const html = `
-      <h2>✅ Acompte commission reçu !</h2>
+      <h2>✅ Acompte reçu — Commission confirmée !</h2>
+      <p><strong>Tu peux commencer le croquis !</strong></p>
+      ${rows.length > 0 ? `
+      <table style="border-collapse:collapse;width:100%">
+        ${rows.map(([k, v]) => `<tr><td style="padding:6px;border:1px solid #ddd;font-weight:bold">${k}</td><td style="padding:6px;border:1px solid #ddd">${v}</td></tr>`).join("")}
+      </table>` : ""}
+      ${c?.description ? `<h3>Description</h3><p style="white-space:pre-wrap">${c.description}</p>` : ""}
+      ${c?.referencePath ? `<p>📎 <a href="${c.referencePath}">Voir la photo de référence</a></p>` : ""}
       <p><strong>Commission ID :</strong> ${commissionId}</p>
-      ${category ? `<p><strong>Catégorie :</strong> ${category}</p>` : ""}
-      ${size ? `<p><strong>Format :</strong> ${size}</p>` : ""}
-      <p><strong>Session Stripe :</strong> ${sessionId}</p>
-      <p>L'acompte a été reçu — tu peux commencer le croquis !</p>
     `;
 
     await resend.emails.send({
       from: "Damien Rul · Atelier <no-reply@damienrulatelier.fr>",
       to: artistEmail,
-      subject: `✅ Acompte commission reçu${category ? ` — ${category}` : ""}`,
+      subject: `✅ Commission payée${c?.category ? ` — ${c.category}` : ""}${c?.size ? ` ${c.size}` : ""}`,
       html,
     });
 
-    console.log("[MerciCommission] Mail envoyé à", artistEmail);
+    // Mettre à jour le statut dans Supabase
+    try {
+      const { createClient } = await import("@supabase/supabase-js");
+      const sb = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_SERVICE_KEY!);
+      await sb.from("commissions").update({ status: "paid" }).eq("id", commissionId);
+    } catch { /* silencieux */ }
+
+    console.log("[MerciCommission] Mail envoyé");
   } catch (e) {
     console.error("[MerciCommission] Erreur mail:", e);
   }

@@ -45,18 +45,12 @@ export async function POST(req: NextRequest) {
     estimatedPrice, deposit, prints, digital, referencePath: referenceUrl,
   };
 
-  // Toujours sauvegarder en JSON en premier
+  // Sauvegarder dans Supabase
   try {
-    const jsonFile = isDevis ? "commissions.json" : "commissions-pending.json";
-    const p = path.join(process.cwd(), "data", jsonFile);
-    let list: unknown[] = [];
-    if (fs.existsSync(p)) {
-      try { list = JSON.parse(fs.readFileSync(p, "utf-8")); } catch { list = []; }
-    }
-    list.push(commissionData);
-    fs.mkdirSync(path.dirname(p), { recursive: true });
-    fs.writeFileSync(p, JSON.stringify(list, null, 2));
-  } catch { /* silencieux */ }
+    const { createClient } = await import("@supabase/supabase-js");
+    const sb = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_SERVICE_KEY!);
+    await sb.from("commissions").upsert({ id: commissionId, data: commissionData, status: commissionData.status, created_at: commissionData.createdAt });
+  } catch (e) { console.error("[Commission] Supabase save error:", e); }
 
   // Pour les devis — envoyer mail et retourner succès directement
   if (isDevis) {
