@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useCart } from "../../components/CartContext";
 import { getSessionToken } from "../../components/sessionToken";
-import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
+
 
 function fmt(n: number) {
   return n.toFixed(2).replace(".", ",") + " €";
@@ -24,9 +24,7 @@ const SHIPPING_OPTIONS = {
 } as const;
 
 type ShippingKey = keyof typeof SHIPPING_OPTIONS;
-type PaymentKey = "card" | "paypal";
 
-const PAYPAL_CLIENT_ID = process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID || "";
 
 type LoyaltyStatus = {
   purchaseCount: number;
@@ -39,7 +37,7 @@ export default function CommandePage() {
   const router = useRouter();
 
   const [shipping, setShipping] = useState<ShippingKey>("mondialrelay");
-  const [payment, setPayment] = useState<PaymentKey>("card");
+
   const [submitting, setSubmitting] = useState(false);
 
   // Réinitialiser si le client revient de Stripe
@@ -311,31 +309,7 @@ export default function CommandePage() {
         <h2 className="text-xs uppercase tracking-wide font-semibold text-[#3A3631] mb-3">
           Paiement
         </h2>
-        <div className="flex gap-2.5 mb-4">
-          <button
-            type="button"
-            onClick={() => setPayment("card")}
-            className={`flex-1 py-4 border flex flex-col items-center gap-2 text-sm font-medium transition-colors ${
-              payment === "card" ? "border-[#181614] bg-[#F2F0EA]" : "border-[#DEDAD1]"
-            }`}
-          >
-            <span>💳</span>
-            Carte bancaire
-          </button>
-          <button
-            type="button"
-            onClick={() => setPayment("paypal")}
-            className={`flex-1 py-4 border flex flex-col items-center gap-2 text-sm font-medium transition-colors ${
-              payment === "paypal" ? "border-[#181614] bg-[#F2F0EA]" : "border-[#DEDAD1]"
-            }`}
-          >
-            <span>🅿️</span>
-            PayPal
-          </button>
-        </div>
-
-        {payment === "card" ? (
-          <form onSubmit={handleStripePay}>
+        <form onSubmit={handleStripePay}>
             <p className="text-xs text-[#8C8780] mb-4">
               Tu seras redirigé·e vers une page Stripe sécurisée pour entrer ta carte. Aucune
               donnée bancaire ne passe par ce site.
@@ -382,91 +356,6 @@ export default function CommandePage() {
               {submitting ? "Redirection…" : `Payer ${fmt(total)} par carte`}
             </button>
           </form>
-        ) : (
-          <div>
-            {error && <p className="text-sm text-[#B23A24] mb-4">{error}</p>}
-            <div className="text-sm text-[#3A3631] flex flex-col gap-1.5 border-t border-[#DEDAD1] pt-4 mb-3">
-              <div className="flex justify-between">
-                <span>Sous-total</span>
-                <span className="font-mono">{fmt(subtotal)}</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Livraison</span>
-                {freeShipping ? (
-                  <span className="font-mono text-[#3A7D44] font-semibold">Offerte — fidélité 🎉</span>
-                ) : (
-                  <span className="font-mono">{fmt(shippingPrice)}</span>
-                )}
-              </div>
-            </div>
-            <div className="flex justify-between text-lg font-semibold pt-2 mb-6">
-              <span>Total</span>
-              <span className="font-mono">{fmt(total)}</span>
-            </div>
-            <label className="flex items-start gap-3 mb-4 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={cgvAccepted}
-                onChange={(e) => setCgvAccepted(e.target.checked)}
-                className="mt-0.5 w-4 h-4 accent-[#B23A24] flex-shrink-0"
-              />
-              <span className="text-xs text-[#3A3631]">
-                J&rsquo;ai lu et j&rsquo;accepte les{" "}
-                <a href="/legal" target="_blank" className="underline hover:text-[#B23A24]">
-                  conditions générales de vente
-                </a>{" "}
-                — commande avec obligation de paiement.
-              </span>
-            </label>
-            {PAYPAL_CLIENT_ID ? (
-              <PayPalScriptProvider options={{ clientId: PAYPAL_CLIENT_ID, currency: "EUR" }}>
-                <PayPalButtons
-                  style={{ layout: "vertical", color: "black" }}
-                  onClick={() => {
-                    if (!validateForm()) return Promise.reject();
-                    return Promise.resolve();
-                  }}
-                  createOrder={async () => {
-                    const res = await fetch("/api/checkout/paypal/create", {
-                      method: "POST",
-                      headers: { "Content-Type": "application/json" },
-                      body: JSON.stringify({
-                        lines: lines.map((l) => ({
-                          productId: l.productId,
-                          title: l.title,
-                          price: l.price,
-                          qty: l.qty,
-                        })),
-                        shippingPrice: shippingPrice,
-                      }),
-                    });
-                    const data = await res.json();
-                    if (!res.ok) throw new Error(data.error);
-                    return data.orderId;
-                  }}
-                  onApprove={async (data) => {
-                    const res = await fetch("/api/checkout/paypal/capture", {
-                      method: "POST",
-                      headers: { "Content-Type": "application/json" },
-                      body: JSON.stringify({ orderId: data.orderID }),
-                    });
-                    if (!res.ok) {
-                      setError("Le paiement n'a pas pu être finalisé.");
-                      return;
-                    }
-                    window.location.href = "/merci";
-                  }}
-                  onError={() => setError("Une erreur est survenue avec PayPal.")}
-                />
-              </PayPalScriptProvider>
-            ) : (
-              <p className="text-sm text-[#B23A24] border border-[#B23A24] bg-[#E8D9D3] px-4 py-3">
-                PayPal n&rsquo;est pas encore configuré sur ce site (NEXT_PUBLIC_PAYPAL_CLIENT_ID
-                manquant dans .env.local).
-              </p>
-            )}
-          </div>
-        )}
       </section>
 
       {/* Modal d'annulation */}
