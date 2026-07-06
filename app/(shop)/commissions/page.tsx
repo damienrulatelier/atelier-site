@@ -157,6 +157,26 @@ export default function CommissionsPage() {
     setError("");
     setSubmitting(true);
 
+    // Uploader la photo de référence vers Cloudinary directement depuis le navigateur
+    let referenceUrl = "";
+    if (refFile) {
+      try {
+        const sigRes = await fetch("/api/admin/upload", { method: "GET" });
+        const sig = await sigRes.json();
+        if (sig.cloudName) {
+          const fd = new FormData();
+          fd.append("file", refFile as Blob);
+          fd.append("api_key", sig.apiKey);
+          fd.append("timestamp", String(sig.timestamp));
+          fd.append("signature", sig.signature);
+          fd.append("folder", sig.folder + "/commissions");
+          const res = await fetch(`https://api.cloudinary.com/v1_1/${sig.cloudName}/image/upload`, { method: "POST", body: fd });
+          const data = await res.json();
+          if (data.secure_url) referenceUrl = data.secure_url;
+        }
+      } catch { /* silencieux — la photo sera juste absente */ }
+    }
+
     const printsSummary  = PRINT_SIZES.filter(k => (printQtys[k] || 0) > 0).map(k => `${printQtys[k]}× Print ${k} (${fmt2(PRINT_PRICES[k] * (printQtys[k] || 0))})`).join(", ");
     const digitalSummary = isDigital ? `${medium === "lesdeux" ? "Les deux" : "Digital"} ${digitalSize} ${color === "nb" ? "N&B" : "Couleur"}` : "";
 
@@ -171,7 +191,7 @@ export default function CommissionsPage() {
     body.append("medium", MEDIUMS.find(m => m.key === medium)?.label || medium);
     body.append("description", description);
     if (formats) body.append("formats", formats);
-    if (refFile) body.append("reference", refFile);
+    if (referenceUrl) body.append("referenceUrl", referenceUrl);
     if (printsSummary)  body.append("prints",  printsSummary);
     if (digitalSummary) body.append("digital", digitalSummary);
 

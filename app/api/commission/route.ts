@@ -1,107 +1,163 @@
 import { NextRequest, NextResponse } from "next/server";
-import { Resend } from "resend";
+import fs from "fs";
+import path from "path";
 
-const RESEND_API_KEY = process.env.RESEND_API_KEY;
-const CONTACT_EMAIL = process.env.CONTACT_EMAIL || "damienrul34@gmail.com";
+const DEVIS_CATEGORIES = ["Projet visuel", "Sur mesure"];
 
-function isConfigured() {
-  return !!RESEND_API_KEY;
-}
+const SCAN_SUPPLEMENT: Record<string, number> = {
+  A5: 2, A4: 4, A3: 10, A2: 20, A1: 25,
+};
 
 export async function POST(req: NextRequest) {
-  if (!isConfigured()) {
-    return NextResponse.json(
-      {
-        error:
-          "L'envoi d'email n'est pas encore configuré sur ce site. Renseigne RESEND_API_KEY dans .env.local.",
-      },
-      { status: 503 }
-    );
+  let formData: FormData;
+  try {
+    formData = await req.formData();
+  } catch {
+    return NextResponse.json({ error: "Données invalides." }, { status: 400 });
   }
 
-  const body = await req.json().catch(() => null);
-  if (!body) {
-    return NextResponse.json({ error: "Requête invalide." }, { status: 400 });
+  const category       = (formData.get("category") as string) || "";
+  const size           = (formData.get("size") as string) || "";
+  const color          = (formData.get("color") as string) || "";
+  const medium         = (formData.get("medium") as string) || "";
+  const description    = (formData.get("description") as string) || "";
+  const estimatedPrice = (formData.get("estimatedPrice") as string) || "";
+  const deposit        = (formData.get("deposit") as string) || "";
+  const prints         = (formData.get("prints") as string) || "";
+  const digital        = (formData.get("digital") as string) || "";
+  const formats        = (formData.get("formats") as string) || "";
+  const paymentMethod  = (formData.get("paymentMethod") as string) || "stripe";
+  const referenceUrl   = (formData.get("referenceUrl") as string) || "";
+
+  if (!description.trim()) {
+    return NextResponse.json({ error: "Description manquante." }, { status: 400 });
   }
 
-  const { name, email, formula, format, delivery, printCopies, description, images } = body;
+  const isDevis = DEVIS_CATEGORIES.includes(category);
+  const commissionId = `com_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`;
 
-  if (!name || !email || !formula || !delivery || !description) {
-    return NextResponse.json({ error: "Merci de remplir tous les champs." }, { status: 400 });
+  // Sauvegarder la photo de référence
+  const commissionData = {
+    id: commissionId,
+    createdAt: new Date().toISOString(),
+    status: isDevis ? "pending_reply" : "pending_payment",
+    category, size, color, medium, description, formats,
+    estimatedPrice, deposit, prints, digital, referencePath: referenceUrl,
+  };
+
+  // Toujours sauvegarder en JSON en premier
+  try {
+    const jsonFile = isDevis ? "commissions.json" : "commissions-pending.json";
+    const p = path.join(process.cwd(), "data", jsonFile);
+    let list: unknown[] = [];
+    if (fs.existsSync(p)) {
+      try { list = JSON.parse(fs.readFileSync(p, "utf-8")); } catch { list = []; }
+    }
+    list.push(commissionData);
+    fs.mkdirSync(path.dirname(p), { recursive: true });
+    fs.writeFileSync(p, JSON.stringify(list, null, 2));
+  } catch { /* silencieux */ }
+
+  // Pour les devis — envoyer mail et retourner succès directement
+  if (isDevis) {
+    // Envoyer mail en arrière-plan (sans await pour ne pas bloquer)
+    sendEmail(commissionData, referenceUrl).catch(() => {});
+    return NextResponse.json({ ok: true, devis: true });
   }
 
-  const origin = req.headers.get("origin") || new URL(req.url).origin;
-  const imageUrls: string[] = Array.isArray(images) ? images : [];
+  // Pour référence et imagination — créer session de paiement
+  const depositAmount = (() => {
+    if (size === "A5") return 500;
+    if (size === "A4") return 800;
+    if (size === "A3") return 1000;
+    if (size === "A2") return 2000;
+    return 1000; // digital
+  })();
 
-  const formulaLabels: Record<string, string> = {
-    souvenir: "Souvenir (25 €) — mise en scène imaginée",
-    reproduction: "Reproduction (20 €) — dessin d'observation fidèle",
-    surmesure: "Sur mesure — devis à discuter",
-  };
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+  const stripeKey = process.env.STRIPE_SECRET_KEY;
 
-  const formatLabels: Record<string, string> = {
-    traditionnel: "Traditionnel (carnet A3)",
-    digital: "Digital (tablette graphique)",
-  };
-
-  const deliveryLabels: Record<string, Record<string, string>> = {
-    traditionnel: {
-      scan: "Scan numérique par e-mail (l'original reste chez l'artiste)",
-      mondialrelay: "Scan par e-mail + original envoyé par Mondial Relay",
-      poste: "Scan par e-mail + original envoyé par la Poste",
-    },
-    digital: {
-      scan: "Fichier numérique par e-mail uniquement",
-      mondialrelay: "Fichier par e-mail + print imprimé envoyé par Mondial Relay",
-      poste: "Fichier par e-mail + print imprimé envoyé par la Poste",
-    },
-  };
+  // Mode dev sans Stripe — redirection directe vers merci
+  if (!stripeKey) {
+    return NextResponse.json({
+      checkoutUrl: `${siteUrl}/merci-commission?id=${commissionId}&mock=1`,
+    });
+  }
 
   try {
-    const resend = new Resend(RESEND_API_KEY);
-    const { error } = await resend.emails.send({
-      from: "Commission Atelier <onboarding@resend.dev>",
-      to: [CONTACT_EMAIL],
-      replyTo: email,
-      subject: `Nouvelle demande de commission — ${name}`,
-      html: `
-        <h2>Nouvelle demande de commission</h2>
-        <p><strong>Nom :</strong> ${name}</p>
-        <p><strong>E-mail :</strong> ${email}</p>
-        <p><strong>Formule souhaitée :</strong> ${formulaLabels[formula] || formula}</p>
-        <p><strong>Format :</strong> ${formatLabels[format] || format || "Non précisé"}</p>
-        <p><strong>Mode de réception :</strong> ${
-          deliveryLabels[format]?.[delivery] || delivery
-        }</p>
-        ${
-          printCopies && printCopies > 0
-            ? `<p><strong>Nombre d'exemplaires imprimés demandés :</strong> ${printCopies}</p>`
-            : ""
-        }
-        <p><strong>Description du projet :</strong></p>
-        <p>${String(description).replace(/\n/g, "<br>")}</p>
-        ${
-          imageUrls.length > 0
-            ? `<p><strong>Photo(s) de référence :</strong></p>
-               <div>${imageUrls
-                 .map(
-                   (url) =>
-                     `<a href="${origin}${url}"><img src="${origin}${url}" alt="Référence" width="200" style="margin: 4px; border: 1px solid #ddd;" /></a>`
-                 )
-                 .join("")}</div>`
-            : ""
-        }
-      `,
+    // Stripe
+    const stripe = (await import("stripe")).default;
+    const stripeClient = new stripe(stripeKey);
+    const session = await stripeClient.checkout.sessions.create({
+      payment_method_types: ["card"],
+      line_items: [{
+        price_data: {
+          currency: "eur",
+          product_data: {
+            name: `Acompte commission — ${category}${size ? ` ${size}` : ""}`,
+            description: "Déduit du total final.",
+          },
+          unit_amount: depositAmount,
+        },
+        quantity: 1,
+      }],
+      mode: "payment",
+      success_url: `${siteUrl}/merci-commission?id=${commissionId}&session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${siteUrl}/commissions?cancelled=1`,
+      metadata: { commissionId },
     });
+    return NextResponse.json({ checkoutUrl: session.url });
 
-    if (error) {
-      console.error("Erreur Resend:", error);
-      return NextResponse.json({ error: "Échec de l'envoi de l'email." }, { status: 500 });
-    }
-
-    return NextResponse.json({ ok: true });
   } catch (err) {
-    console.error("Erreur envoi commission:", err);
-    return NextResponse.json({ error: "Échec de l'envoi de l'email." }, { status: 500 });
+    console.error("[Commission] Erreur paiement:", err);
+    // Fallback — redirection directe (paiement sera demandé manuellement)
+    return NextResponse.json({
+      checkoutUrl: `${siteUrl}/merci-commission?id=${commissionId}&mock=1`,
+    });
   }
 }
+
+async function sendEmail(commission: Record<string, string>, referencePath: string) {
+  const resendKey = process.env.RESEND_API_KEY;
+  const artistEmail = process.env.ARTIST_EMAIL || "damienrul34@gmail.com";
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+  if (!resendKey) return;
+
+  const { Resend } = await import("resend");
+  const resend = new Resend(resendKey);
+  const c = commission;
+  const isDevis = c.status === "pending_reply";
+
+  const rows = [
+    ["Catégorie", c.category],
+    ["Format", c.size],
+    ["Rendu", c.color],
+    ["Médium", c.medium],
+    ["Prints", c.prints],
+    ["Digital", c.digital],
+    ["Formats souhaités", c.formats],
+    ["Prix estimé", c.estimatedPrice],
+    ["Acompte", c.deposit],
+  ].filter(([, v]) => v);
+
+  const html = `
+    <h2>${isDevis ? "📋 Nouveau devis" : "✅ Commission — acompte à collecter"} — ${c.category}${c.size ? ` ${c.size}` : ""}</h2>
+    ${!isDevis ? "<p><strong>Envoie le lien de paiement de l'acompte au client.</strong></p>" : ""}
+    <table style="border-collapse:collapse;width:100%">
+      ${rows.map(([k, v]) => `<tr><td style="padding:6px;border:1px solid #ddd;font-weight:bold">${k}</td><td style="padding:6px;border:1px solid #ddd">${v}</td></tr>`).join("")}
+    </table>
+    <h3>Description</h3>
+    <p style="white-space:pre-wrap">${c.description}</p>
+    ${referencePath ? `<p>📎 <a href="${referencePath}">Voir la photo de référence</a></p>` : ""}
+  `;
+
+  await resend.emails.send({
+    from: "Damien Rul · Atelier <no-reply@damienrulatelier.fr>",
+    to: artistEmail,
+    subject: `${isDevis ? "📋 Devis" : "🎨 Commission"} — ${c.category}${c.size ? ` ${c.size}` : ""}`,
+    html,
+  });
+}
+
+// Export pour référence externe
+export { SCAN_SUPPLEMENT };
