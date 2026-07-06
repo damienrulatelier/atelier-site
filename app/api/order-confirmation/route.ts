@@ -126,7 +126,7 @@ export async function POST(req: NextRequest) {
               : ""
           }
           <p>L'atelier prépare ton envoi avec soin — et ta dédicace, s'il y en a une, sera
-          dessinée avant l'expédition.</p>
+          faite avant l'expédition.</p>
         `,
       });
     }

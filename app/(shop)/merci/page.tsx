@@ -215,7 +215,7 @@ export default async function MerciPage({
       <h1 className="font-serif text-3xl text-[#181614] mb-4">Merci pour ta commande</h1>
       <p className="text-[#3A3631] mb-6">
         Un e-mail de confirmation va t&rsquo;être envoyé. L&rsquo;atelier prépare ton envoi avec
-        soin — et ta dédicace, s&rsquo;il y en a une, sera dessinée avant l&rsquo;expédition.
+        soin — et ta dédicace, s&rsquo;il y en a une, sera faite avant l&rsquo;expédition.
       </p>
       {session_id && (
         <p className="text-xs text-[#8C8780] mb-10 font-mono">
