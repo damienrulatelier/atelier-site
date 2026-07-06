@@ -161,7 +161,7 @@ export default function CommissionsPage() {
     let referenceUrl = "";
     if (refFile) {
       try {
-        const sigRes = await fetch("/api/admin/upload", { method: "GET" });
+        const sigRes = await fetch("/api/upload-signature", { method: "GET" });
         const sig = await sigRes.json();
         if (sig.cloudName) {
           const fd = new FormData();
@@ -169,12 +169,13 @@ export default function CommissionsPage() {
           fd.append("api_key", sig.apiKey);
           fd.append("timestamp", String(sig.timestamp));
           fd.append("signature", sig.signature);
-          fd.append("folder", sig.folder + "/commissions");
+          fd.append("folder", sig.folder);
           const res = await fetch(`https://api.cloudinary.com/v1_1/${sig.cloudName}/image/upload`, { method: "POST", body: fd });
           const data = await res.json();
           if (data.secure_url) referenceUrl = data.secure_url;
+          else console.error("Cloudinary commission upload error:", data);
         }
-      } catch { /* silencieux — la photo sera juste absente */ }
+      } catch (e) { console.error("Upload photo référence erreur:", e); }
     }
 
     const printsSummary  = PRINT_SIZES.filter(k => (printQtys[k] || 0) > 0).map(k => `${printQtys[k]}× Print ${k} (${fmt2(PRINT_PRICES[k] * (printQtys[k] || 0))})`).join(", ");
