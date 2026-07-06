@@ -61,7 +61,12 @@ export async function POST(req: NextRequest) {
   // Pour les devis — envoyer mail et retourner succès directement
   if (isDevis) {
     console.log("[Commission] Devis reçu, envoi mail...");
-    sendEmail(commissionData, referenceUrl).catch((e) => console.error("[Commission] sendEmail error:", e));
+    try {
+      await sendEmail(commissionData, referenceUrl);
+      console.log("[Commission] Mail envoyé");
+    } catch (e) {
+      console.error("[Commission] sendEmail error:", e);
+    }
     return NextResponse.json({ ok: true, devis: true });
   }
 
