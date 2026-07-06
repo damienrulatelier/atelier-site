@@ -66,8 +66,7 @@ export default function AddToCartModal({
     d.originalPrintEmail?.enabled ? (d.originalPrintEmail.sizes?.A4?.price || 0) : 0;
 
   const originalAvailable = (d.original?.enabled || d.originalEmail?.enabled ||
-    d.originalPrint?.enabled || d.originalPrintEmail?.enabled) &&
-    product.editionSold === 0;
+    d.originalPrint?.enabled || d.originalPrintEmail?.enabled);
 
   // Stock global restant pour les prints en édition limitée
   const hasEditionLimit = product.editionTotal > 0;
