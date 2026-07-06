@@ -251,22 +251,25 @@ export default function ProductForm({
           </div>
         </div>
         {(values.type === "print") && (
+          <>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className={labelCls}>N° d'édition (affiché)</label>
+              <label className={labelCls}>{"N° d'édition (affiché)"}</label>
               <input className={inputCls} value={values.edition} onChange={(e) => set("edition", e.target.value)} placeholder="1/20" />
             </div>
             <div>
-              <label className={labelCls}>Total de l'édition</label>
+              <label className={labelCls}>Total de l&apos;édition</label>
               <input type="number" min="0" className={inputCls} value={values.editionTotal || ""} onChange={(e) => set("editionTotal", parseInt(e.target.value) || 0)} placeholder="0 = pas de limite" />
             </div>
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className={labelCls}>Exemplaires vendus <span className="font-normal text-[#8C8780] normal-case">(mis à jour auto à chaque vente)</span></label>
+              <label className={labelCls}>Exemplaires vendus</label>
+              <p className="text-xs text-[#8C8780] mb-1">Mis à jour automatiquement à chaque vente</p>
               <input type="number" min="0" className={inputCls} value={values.editionSold || ""} onChange={(e) => set("editionSold", parseInt(e.target.value) || 0)} placeholder="0" />
             </div>
           </div>
+          </>
         )}
         <div>
           <label className={labelCls}>Prix unique (BD / autre uniquement)</label>
