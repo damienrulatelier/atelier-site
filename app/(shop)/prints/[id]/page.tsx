@@ -200,6 +200,8 @@ export default function PrintDetailPage() {
               const hasTabs = hasOriginalPhotos && hasPrintPhotos;
               const activePhotos = hasTabs
                 ? (photoTab === "original" ? product.imagesOriginal! : product.imagesPrint!)
+                : hasOriginalPhotos
+                ? product.imagesOriginal!
                 : product.images;
 
               return (
