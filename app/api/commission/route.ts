@@ -60,8 +60,8 @@ export async function POST(req: NextRequest) {
 
   // Pour les devis — envoyer mail et retourner succès directement
   if (isDevis) {
-    // Envoyer mail en arrière-plan (sans await pour ne pas bloquer)
-    sendEmail(commissionData, referenceUrl).catch(() => {});
+    console.log("[Commission] Devis reçu, envoi mail...");
+    sendEmail(commissionData, referenceUrl).catch((e) => console.error("[Commission] sendEmail error:", e));
     return NextResponse.json({ ok: true, devis: true });
   }
 
@@ -121,6 +121,7 @@ async function sendEmail(commission: Record<string, string>, referencePath: stri
   const resendKey = process.env.RESEND_API_KEY;
   const artistEmail = process.env.ARTIST_EMAIL || "damienrul34@gmail.com";
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+  console.log("[Commission sendEmail] resendKey:", resendKey ? "OK" : "MANQUANT", "artistEmail:", artistEmail);
   if (!resendKey) return;
 
   const { Resend } = await import("resend");
