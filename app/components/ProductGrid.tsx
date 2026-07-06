@@ -134,10 +134,12 @@ export default function ProductGrid({ products, context }: { products: Product[]
                     {p.edition}
                   </span>
                 )}
-                {p.images[0] ? (
+                {(() => {
+                  const displayImages = (context === "originals" && p.imagesOriginal?.length) ? p.imagesOriginal : p.images;
+                  return displayImages[0] ? (
                   <>
                     <Image
-                      src={p.images[0]}
+                      src={displayImages[0]}
                       alt={p.title}
                       width={600}
                       height={800}
@@ -161,7 +163,7 @@ export default function ProductGrid({ products, context }: { products: Product[]
                   <div className="aspect-square bg-[#F2F0EA] flex items-center justify-center text-[#8C8780] text-xs">
                     Pas de photo
                   </div>
-                )}
+                )})()}
               </div>
               <div className="p-6 flex flex-col gap-1.5 flex-1">
                 <h3 className="font-serif text-[19px] text-[#181614] group-hover:text-[#B23A24] transition-colors">
@@ -234,7 +236,7 @@ export default function ProductGrid({ products, context }: { products: Product[]
 
       {zoomProduct && (
         <ImageLightbox
-          images={zoomProduct.images}
+          images={zoomProduct.imagesOriginal?.length ? zoomProduct.imagesOriginal : zoomProduct.images}
           title={zoomProduct.title}
           onClose={() => setZoomProduct(null)}
         />
