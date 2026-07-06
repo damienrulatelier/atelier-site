@@ -27,7 +27,7 @@ export async function POST(req: NextRequest) {
   const digital        = (formData.get("digital") as string) || "";
   const formats        = (formData.get("formats") as string) || "";
   const paymentMethod  = (formData.get("paymentMethod") as string) || "stripe";
-  const reference      = formData.get("reference") as File | null;
+  const referenceUrl   = (formData.get("referenceUrl") as string) || "";
 
   if (!description.trim()) {
     return NextResponse.json({ error: "Description manquante." }, { status: 400 });
@@ -37,24 +37,12 @@ export async function POST(req: NextRequest) {
   const commissionId = `com_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`;
 
   // Sauvegarder la photo de référence
-  let referencePath = "";
-  if (reference && reference.size > 0) {
-    try {
-      const uploadsDir = path.join(process.cwd(), "public", "uploads", "commissions");
-      fs.mkdirSync(uploadsDir, { recursive: true });
-      const ext = (reference.name.split(".").pop() || "jpg").toLowerCase();
-      const refPath = path.join(uploadsDir, `${commissionId}.${ext}`);
-      fs.writeFileSync(refPath, Buffer.from(await reference.arrayBuffer()));
-      referencePath = `/uploads/commissions/${commissionId}.${ext}`;
-    } catch { /* silencieux */ }
-  }
-
   const commissionData = {
     id: commissionId,
     createdAt: new Date().toISOString(),
     status: isDevis ? "pending_reply" : "pending_payment",
     category, size, color, medium, description, formats,
-    estimatedPrice, deposit, prints, digital, referencePath,
+    estimatedPrice, deposit, prints, digital, referencePath: referenceUrl,
   };
 
   // Toujours sauvegarder en JSON en premier
@@ -72,8 +60,13 @@ export async function POST(req: NextRequest) {
 
   // Pour les devis — envoyer mail et retourner succès directement
   if (isDevis) {
-    // Envoyer mail en arrière-plan (sans await pour ne pas bloquer)
-    sendEmail(commissionData, referencePath).catch(() => {});
+    console.log("[Commission] Devis reçu, envoi mail...");
+    try {
+      await sendEmail(commissionData, referenceUrl);
+      console.log("[Commission] Mail envoyé");
+    } catch (e) {
+      console.error("[Commission] sendEmail error:", e);
+    }
     return NextResponse.json({ ok: true, devis: true });
   }
 
@@ -116,7 +109,7 @@ export async function POST(req: NextRequest) {
       mode: "payment",
       success_url: `${siteUrl}/merci-commission?id=${commissionId}&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${siteUrl}/commissions?cancelled=1`,
-      metadata: { commissionId },
+      metadata: { commissionId, category, size },
     });
     return NextResponse.json({ checkoutUrl: session.url });
 
@@ -133,6 +126,7 @@ async function sendEmail(commission: Record<string, string>, referencePath: stri
   const resendKey = process.env.RESEND_API_KEY;
   const artistEmail = process.env.ARTIST_EMAIL || "damienrul34@gmail.com";
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+  console.log("[Commission sendEmail] resendKey:", resendKey ? "OK" : "MANQUANT", "artistEmail:", artistEmail);
   if (!resendKey) return;
 
   const { Resend } = await import("resend");
@@ -160,7 +154,7 @@ async function sendEmail(commission: Record<string, string>, referencePath: stri
     </table>
     <h3>Description</h3>
     <p style="white-space:pre-wrap">${c.description}</p>
-    ${referencePath ? `<p>📎 <a href="${siteUrl}${referencePath}">Voir la photo de référence</a></p>` : ""}
+    ${referencePath ? `<p>📎 <a href="${referencePath}">Voir la photo de référence</a></p>` : ""}
   `;
 
   await resend.emails.send({

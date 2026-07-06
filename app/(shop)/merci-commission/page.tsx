@@ -1,10 +1,9 @@
 import { redirect } from "next/navigation";
-import fs from "fs";
-import path from "path";
 
 async function confirmAndNotify(commissionId: string, sessionId: string) {
-  // Vérifier le paiement Stripe
   const stripeKey = process.env.STRIPE_SECRET_KEY;
+
+  // Vérifier le paiement Stripe
   if (stripeKey && sessionId && !sessionId.startsWith("mock")) {
     try {
       const stripe = (await import("stripe")).default;
@@ -14,54 +13,55 @@ async function confirmAndNotify(commissionId: string, sessionId: string) {
     } catch { return false; }
   }
 
-  // Charger la demande
-  const p = path.join(process.cwd(), "data", "commissions-pending.json");
-  if (!fs.existsSync(p)) return false;
-  const list = JSON.parse(fs.readFileSync(p, "utf-8"));
-  const commission = list.find((c: { id: string }) => c.id === commissionId);
-  if (!commission) return false;
-  if (commission.status === "paid") return true; // déjà traité
-
-  // Marquer comme payé
-  commission.status = "paid";
-  commission.paidAt = new Date().toISOString();
-  fs.writeFileSync(p, JSON.stringify(list, null, 2));
-
-  // Sauvegarder dans commissions.json
-  try {
-    const cp = path.join(process.cwd(), "data", "commissions.json");
-    let confirmed: unknown[] = [];
-    if (fs.existsSync(cp)) confirmed = JSON.parse(fs.readFileSync(cp, "utf-8"));
-    confirmed.push(commission);
-    fs.writeFileSync(cp, JSON.stringify(confirmed, null, 2));
-  } catch { /* silencieux */ }
-
-  // Envoyer le mail à l'artiste
+  // Envoyer le mail directement avec les données de la session Stripe
   const resendKey = process.env.RESEND_API_KEY;
   const artistEmail = process.env.ARTIST_EMAIL || "damienrul34@gmail.com";
-  if (resendKey) {
+
+  if (!resendKey) {
+    console.log("[MerciCommission] Pas de RESEND_API_KEY");
+    return true;
+  }
+
+  // Récupérer les détails de la session Stripe pour avoir les metadata
+  let category = "";
+  let size = "";
+  let commissionDetails = "";
+
+  if (stripeKey && sessionId && !sessionId.startsWith("mock")) {
     try {
-      const { Resend } = await import("resend");
-      const resend = new Resend(resendKey);
-      const c = commission;
-      const html = `
-        <h2>✅ Nouvelle commission payée — ${c.category}${c.size ? ` ${c.size}` : ""}</h2>
-        <p><strong>Acompte reçu — tu peux commencer le croquis !</strong></p>
-        <table style="border-collapse:collapse;width:100%">
-          ${[["Catégorie",c.category],["Format",c.size],["Rendu",c.color],["Médium",c.medium],["Prints",c.prints],["Digital",c.digital],["Prix estimé",c.estimatedPrice],["Acompte",c.deposit]]
-            .filter(([,v])=>v).map(([k,v])=>`<tr><td style="padding:6px;border:1px solid #ddd;font-weight:bold">${k}</td><td style="padding:6px;border:1px solid #ddd">${v}</td></tr>`).join("")}
-        </table>
-        <h3>Description du projet</h3>
-        <p style="white-space:pre-wrap">${c.description}</p>
-        ${c.referencePath ? `<p><em>📎 Photo de référence : <a href="${process.env.NEXT_PUBLIC_SITE_URL}${c.referencePath}">voir la photo</a></em></p>` : ""}
-      `;
-      await resend.emails.send({
-        from: "Damien Rul · Atelier <no-reply@damienrulatelier.fr>",
-        to: artistEmail,
-        subject: `✅ Commission payée — ${c.category}${c.size ? ` ${c.size}` : ""}`,
-        html,
-      });
+      const stripe = (await import("stripe")).default;
+      const stripeClient = new stripe(stripeKey);
+      const session = await stripeClient.checkout.sessions.retrieve(sessionId);
+      const meta = session.metadata || {};
+      category = meta.category || "";
+      size = meta.size || "";
+      commissionDetails = meta.commissionId || commissionId;
     } catch { /* silencieux */ }
+  }
+
+  try {
+    const { Resend } = await import("resend");
+    const resend = new Resend(resendKey);
+
+    const html = `
+      <h2>✅ Acompte commission reçu !</h2>
+      <p><strong>Commission ID :</strong> ${commissionId}</p>
+      ${category ? `<p><strong>Catégorie :</strong> ${category}</p>` : ""}
+      ${size ? `<p><strong>Format :</strong> ${size}</p>` : ""}
+      <p><strong>Session Stripe :</strong> ${sessionId}</p>
+      <p>L'acompte a été reçu — tu peux commencer le croquis !</p>
+    `;
+
+    await resend.emails.send({
+      from: "Damien Rul · Atelier <no-reply@damienrulatelier.fr>",
+      to: artistEmail,
+      subject: `✅ Acompte commission reçu${category ? ` — ${category}` : ""}`,
+      html,
+    });
+
+    console.log("[MerciCommission] Mail envoyé à", artistEmail);
+  } catch (e) {
+    console.error("[MerciCommission] Erreur mail:", e);
   }
 
   return true;
