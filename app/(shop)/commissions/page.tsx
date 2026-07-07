@@ -184,17 +184,17 @@ export default function CommissionsPage() {
         return s + qty * (price + scan) * digitalPrintDiscount;
       }, 0)
       + (wantDigitalEmail && !isLesDeux ? digitalEmailPrice : 0)
-      + (hasLesDuexScan ? 30 : 0)
+      + (hasLesDuexScan ? (category === "imagination" ? 35 : 30) : 0)
     : 0;
 
   const basePrice = isDigital ? (digitalTotal > 0 ? digitalTotal : null) : tradiBasePrice;
 
+  const DEPOSIT_BY_SIZE: Record<SizeKey, number> = { A5: 5, A4: 8, A3: 10, A2: 20 };
   const deposit = hasDevis ? null : isDigital
     ? 10
-    : mainSize === "A5" ? 5
-    : mainSize === "A4" ? 8
-    : mainSize === "A3" ? 10
-    : 20;
+    : (["A5", "A4", "A3", "A2"] as SizeKey[]).reduce((sum, s) => {
+        return sum + (sizeQtys[s] || 0) * DEPOSIT_BY_SIZE[s];
+      }, 0) || (DEPOSIT_BY_SIZE[mainSize] || 5);
 
   const printsTotal = PRINT_SIZES.reduce((s, k) => s + (printQtys[k] || 0) * PRINT_PRICES[k], 0);
   const total = isDigital ? digitalTotal : (tradiBasePrice ?? 0) + printsTotal;
@@ -484,7 +484,7 @@ export default function CommissionsPage() {
               <p className="text-xs font-semibold text-[#3A3631] mt-2 mb-2 uppercase tracking-wide">Scan par e-mail</p>
               {isLesDeux ? (
                 <>
-                  <p className="text-xs text-[#8C8780] mb-2">Format de la feuille originale — scan envoyé par e-mail (+30€ fixe pour l&rsquo;envoi, −20% sur les prints). Tu peux en commander plusieurs.</p>
+                  <p className="text-xs text-[#8C8780] mb-2">Format de la feuille originale — scan envoyé par e-mail (+{category === "imagination" ? 35 : 30}€ fixe pour l&rsquo;envoi, −20% sur les prints). Tu peux en commander plusieurs.</p>
                   <div className="flex flex-col gap-2">
                     {(["A5", "A4", "A3", "A2", "A1"] as const).map(s => {
                       const scanPrice = s === "A5" ? 3 : s === "A4" ? 6 : s === "A3" ? 12 : s === "A2" ? 25 : 40;
