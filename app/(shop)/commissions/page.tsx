@@ -52,14 +52,14 @@ const PRICES_MAIL: Record<CategoryKey, Partial<Record<SizeKey, Record<ColorKey, 
 // Prix digital A5→A1 par catégorie
 const DIGITAL_COMMISSION_PRICES: Record<"reference" | "imagination", Record<DigitalSizeKey, Record<ColorKey, number>>> = {
   reference: {
-    A5: { nb: 25, color: 30 },
+    A5: { nb: 33, color: 37 },
     A4: { nb: 39, color: 46 },
     A3: { nb: 49, color: 62 },
     A2: { nb: 90, color: 100 },
     A1: { nb: 120, color: 140 },
   },
   imagination: {
-    A5: { nb: 30, color: 35 },
+    A5: { nb: 33, color: 37 },
     A4: { nb: 44, color: 51 },
     A3: { nb: 55, color: 68 },
     A2: { nb: 95, color: 105 },
@@ -487,7 +487,7 @@ export default function CommissionsPage() {
                   <p className="text-xs text-[#8C8780] mb-2">Format de la feuille originale — scan envoyé par e-mail (+{category === "imagination" ? 35 : 30}€ fixe pour l&rsquo;envoi, −20% sur les prints). Tu peux en commander plusieurs.</p>
                   <div className="flex flex-col gap-2">
                     {(["A5", "A4", "A3", "A2", "A1"] as const).map(s => {
-                      const scanPrice = s === "A5" ? 3 : s === "A4" ? 6 : s === "A3" ? 12 : s === "A2" ? 25 : 40;
+                      const scanPrice = s === "A5" ? (color === "nb" ? 33 : 38) : s === "A4" ? (color === "nb" ? 42 : 47) : s === "A3" ? (color === "nb" ? 52 : 57) : s === "A2" ? (color === "nb" ? 75 : 80) : (color === "nb" ? 110 : 115);
                       const qty = (lesDuexScanQtys as Record<string, number>)[s] || 0;
                       return (
                         <div key={s} className={`flex items-center justify-between gap-3 px-4 py-3 border transition-colors ${qty > 0 ? "border-[#181614] bg-[#F2F0EA]" : "border-[#DEDAD1]"}`}>
