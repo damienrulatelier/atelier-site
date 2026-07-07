@@ -237,6 +237,7 @@ export default function ProductForm({
             <option value="print">Print (édition limitée numérotée)</option>
             <option value="original">Œuvre originale (pièce unique)</option>
             <option value="bd">Bande dessinée</option>
+            <option value="drop">Drop (disponible durée limitée)</option>
             <option value="autre">Autre</option>
           </select>
         </div>
