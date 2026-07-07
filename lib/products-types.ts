@@ -50,7 +50,7 @@ export function emptyDeliveryOptions(): DeliveryOptions {
 export type Product = {
   id: string;
   title: string;
-  type: "print" | "original" | "bd" | "autre";
+  type: "print" | "original" | "bd" | "autre" | "drop";
   medium: string;
   size: string;
   edition: string;
