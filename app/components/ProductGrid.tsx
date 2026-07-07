@@ -102,26 +102,31 @@ export default function ProductGrid({ products, context }: { products: Product[]
                   </span>
                 )}
                 {(() => {
-                  // Pour les drops et originaux, afficher imagesOriginal si disponible
-                  const displayImages = ((context === "originals" || context === "drops") && p.imagesOriginal?.length)
-                    ? p.imagesOriginal
-                    : p.images;
+                  if (context === "drops") {
+                    // Pour les drops : afficher toutes les photos avec badge
+                    const allPhotos = [
+                      ...(p.imagesOriginal || []).map((url: string) => ({ url, label: "Originale" })),
+                      ...p.images.map((url: string) => ({ url, label: "Print" })),
+                    ];
+                    if (allPhotos.length === 0) return <div className="aspect-square bg-[#F2F0EA] flex items-center justify-center text-[#8C8780] text-xs">Pas de photo</div>;
+                    return (
+                      <div className="flex overflow-x-auto">
+                        {allPhotos.map((photo, i) => (
+                          <div key={i} className="relative flex-shrink-0 w-full">
+                            <Image src={photo.url} alt={p.title} width={600} height={800} sizes="50vw" className="w-full h-auto block transition-transform duration-500 group-hover:scale-105" loading="lazy" />
+                            <span className={`absolute bottom-0 left-0 right-0 text-[9px] font-semibold uppercase tracking-wide text-center py-0.5 ${photo.label === "Originale" ? "bg-[#B23A24] text-white" : "bg-[#181614] text-white"}`}>
+                              {photo.label}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    );
+                  }
+                  const displayImages = (context === "originals" && p.imagesOriginal?.length) ? p.imagesOriginal : p.images;
                   return displayImages[0] ? (
                     <>
-                      <Image
-                        src={displayImages[0]}
-                        alt={p.title}
-                        width={600}
-                        height={800}
-                        sizes="(max-width: 768px) 50vw, (max-width: 1280px) 33vw, 25vw"
-                        className="w-full h-auto block transition-transform duration-500 group-hover:scale-105"
-                        loading="lazy"
-                      />
-                      <button
-                        onClick={(e) => { e.preventDefault(); e.stopPropagation(); setZoomProduct(p); }}
-                        aria-label="Zoomer sur l'image"
-                        className="absolute bottom-3 right-3 w-8 h-8 bg-[#FAFAF8] border border-[#DEDAD1] flex items-center justify-center hover:border-[#181614] transition-colors z-10 text-sm"
-                      >🔍</button>
+                      <Image src={displayImages[0]} alt={p.title} width={600} height={800} sizes="(max-width: 768px) 50vw, (max-width: 1280px) 33vw, 25vw" className="w-full h-auto block transition-transform duration-500 group-hover:scale-105" loading="lazy" />
+                      <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); setZoomProduct(p); }} aria-label="Zoomer sur l'image" className="absolute bottom-3 right-3 w-8 h-8 bg-[#FAFAF8] border border-[#DEDAD1] flex items-center justify-center hover:border-[#181614] transition-colors z-10 text-sm">🔍</button>
                     </>
                   ) : (
                     <div className="aspect-square bg-[#F2F0EA] flex items-center justify-center text-[#8C8780] text-xs">Pas de photo</div>
