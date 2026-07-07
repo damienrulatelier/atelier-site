@@ -332,8 +332,17 @@ export default function HomePage() {
 
       {/* BD — conditionnels */}
       {bdItems.length > 0 && (
-        <section id="bd" className="py-22">
+        <section id="bd" className="py-22 border-b border-[#DEDAD1] bg-[#FAFAF8]">
           <div className="max-w-6xl mx-auto px-8">
+            <div className="flex justify-between items-baseline mb-12 border-b border-[#DEDAD1] pb-6">
+              <div>
+                <h2 className="font-serif text-[34px] text-[#181614]">Bande dessinée</h2>
+                <p className="text-sm text-[#8C8780] mt-1">Exemplaires dédicacés, signés à la main</p>
+              </div>
+              <span className="font-mono text-sm text-[#8C8780]">
+                {bdItems.length} titre{bdItems.length !== 1 ? "s" : ""}
+              </span>
+            </div>
             {bdItems.map((bd) => (
               <div key={bd.id}>
                 <BdFeature product={bd as Product} />
