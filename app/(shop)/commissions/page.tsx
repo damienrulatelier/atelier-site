@@ -421,6 +421,19 @@ export default function CommissionsPage() {
                 })}
               </div>
 
+              {!isLesDeux && (
+                <>
+                  <p className="text-xs font-semibold text-[#3A3631] mt-4 mb-2 uppercase tracking-wide">Fichier par e-mail</p>
+                  <label className={`flex items-center justify-between gap-3 px-4 py-3 border cursor-pointer transition-colors ${wantDigitalEmail ? "border-[#181614] bg-[#F2F0EA]" : "border-[#DEDAD1]"}`}>
+                    <div>
+                      <span className="text-sm font-medium">Fichier haute résolution par e-mail</span>
+                      <span className="text-xs text-[#8C8780] ml-2">{fmt2(DIGITAL_EMAIL_PRICE)}</span>
+                    </div>
+                    <input type="checkbox" checked={wantDigitalEmail} onChange={e => setWantDigitalEmail(e.target.checked)} className="accent-[#B23A24] w-4 h-4" />
+                  </label>
+                </>
+              )}
+
             </section>
           )}
 
