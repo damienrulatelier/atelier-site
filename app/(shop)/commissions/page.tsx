@@ -174,7 +174,8 @@ export default function CommissionsPage() {
   const mainSize: SizeKey = (["A2", "A3", "A4", "A5"] as SizeKey[]).find(s => (sizeQtys[s] || 0) > 0) || size;
 
   const digitalEmailPrice = color === "nb" ? DIGITAL_EMAIL_PRICE_NB : DIGITAL_EMAIL_PRICE_COLOR;
-  const digitalPrintDiscount = (wantDigitalEmail && !isLesDeux) || wantLesDuexEmail ? 0.8 : 1;
+  const hasLesDuexScan = isLesDeux && Object.values(lesDuexScanQtys).some(q => ((q as number) || 0) > 0);
+  const digitalPrintDiscount = (wantDigitalEmail && !isLesDeux) || hasLesDuexScan ? 0.8 : 1;
   const digitalTotal = digitalCatKey
     ? DIGITAL_SIZES.reduce((s, k) => {
         const qty = (digitalQtys as Partial<Record<DigitalSizeKey, number>>)[k] || 0;
@@ -183,7 +184,7 @@ export default function CommissionsPage() {
         return s + qty * (price + scan) * digitalPrintDiscount;
       }, 0)
       + (wantDigitalEmail && !isLesDeux ? digitalEmailPrice : 0)
-      + (wantLesDuexEmail ? 30 : 0)
+      + (hasLesDuexScan ? 30 : 0)
     : 0;
 
   const basePrice = isDigital ? (digitalTotal > 0 ? digitalTotal : null) : tradiBasePrice;
@@ -210,6 +211,10 @@ export default function CommissionsPage() {
     if (!description.trim()) { setError("Merci de décrire ton projet."); return; }
     if (category === "reference" && refFiles.length === 0) { setError("Une photo de référence est obligatoire pour cette catégorie."); return; }
     if (isDigital && !charteAccepted) { setError("Merci d'accepter la charte d'utilisation."); return; }
+    if (!isDigital && !hasDevis) {
+      const hasFormat = (["A5", "A4", "A3", "A2"] as SizeKey[]).some(s => (sizeQtys[s] || 0) > 0);
+      if (!hasFormat) { setError("Choisis au moins un format d'œuvre originale."); return; }
+    }
     setError("");
     setSubmitting(true);
 
@@ -361,11 +366,11 @@ export default function CommissionsPage() {
             </section>
           )}
 
-          {/* 4. Formats — compteurs quantité avec prix */}
+          {/* Œuvre originale — format obligatoire pour tradi */}
           {!hasDevis && !isDigital && (
             <section>
-              <label className={labelCls}>4 — Formats et quantités</label>
-              <p className="text-xs text-[#8C8780] mb-3">Tu peux commander plusieurs formats et plusieurs exemplaires.</p>
+              <label className={labelCls}>4 — Œuvre originale <span className="text-[#B23A24]">*</span></label>
+              <p className="text-xs text-[#8C8780] mb-3">Choisis le format de l&rsquo;œuvre originale que tu recevras. Tu peux en commander plusieurs.</p>
               <div className="flex flex-col gap-2">
                 {(["A5", "A4", "A3", "A2"] as SizeKey[]).map(s => {
                   const catKey = (category === "reference" || category === "imagination") ? category : null;
@@ -415,7 +420,7 @@ export default function CommissionsPage() {
                       <div>
                         <span className="text-sm font-medium">Print {s}</span>
                         <span className="text-xs text-[#8C8780] ml-2">
-                          {(wantDigitalEmail && !isLesDeux) || wantLesDuexEmail
+                          {(wantDigitalEmail && !isLesDeux) || hasLesDuexScan
                             ? <><span className="line-through">{fmt2(price + scan)}</span> {fmt2((price + scan) * 0.8)}<span className="text-[#3A7D44] ml-1">−20%</span></>
                             : <>{fmt2(price + scan)}{scan > 0 ? ` (dont +${scan}€ scan)` : ""}</>
                           }
@@ -479,14 +484,7 @@ export default function CommissionsPage() {
               <p className="text-xs font-semibold text-[#3A3631] mt-2 mb-2 uppercase tracking-wide">Scan par e-mail</p>
               {isLesDeux ? (
                 <>
-                  <label className={`flex items-center justify-between gap-3 px-4 py-3 border cursor-pointer transition-colors mb-2 ${wantLesDuexEmail ? "border-[#181614] bg-[#F2F0EA]" : "border-[#DEDAD1]"}`}>
-                    <div>
-                      <span className="text-sm font-medium">Fichier numérique par e-mail</span>
-                      <span className="text-xs text-[#8C8780] ml-2">+30€ — −20% sur les prints</span>
-                    </div>
-                    <input type="checkbox" checked={wantLesDuexEmail} onChange={e => setWantLesDuexEmail(e.target.checked)} className="accent-[#B23A24] w-4 h-4" />
-                  </label>
-                  <p className="text-xs text-[#8C8780] mb-2">Format de la feuille originale scanné et envoyé par e-mail.</p>
+                  <p className="text-xs text-[#8C8780] mb-2">Format de la feuille originale — scan envoyé par e-mail (+30€ fixe pour l&rsquo;envoi, −20% sur les prints). Tu peux en commander plusieurs.</p>
                   <div className="flex flex-col gap-2">
                     {(["A5", "A4", "A3", "A2", "A1"] as const).map(s => {
                       const scanPrice = s === "A5" ? 3 : s === "A4" ? 6 : s === "A3" ? 12 : s === "A2" ? 25 : 40;
