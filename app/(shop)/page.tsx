@@ -43,17 +43,9 @@ export default function HomePage() {
       .then((data) => setProducts(data.products || []));
   }, []);
 
-  // Une fois les produits chargés (et donc les sections #prints / #bd réellement
-  // présentes dans la page), on défile manuellement vers l'ancre demandée.
+  // Produits chargés
   useEffect(() => {
     if (!products) return;
-    const hash = window.location.hash;
-    if (hash) {
-      const el = document.querySelector(hash);
-      if (el) {
-        el.scrollIntoView({ behavior: "smooth" });
-      }
-    }
   }, [products]);
 
   const now = Date.now();
