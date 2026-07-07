@@ -75,8 +75,8 @@ const DIGITAL_SIZES: DigitalSizeKey[] = ["A5", "A4", "A3", "A2", "A1"];
 
 const MEDIUMS: { key: MediumKey; label: string; sub: string }[] = [
   { key: "traditionnel", label: "Traditionnel",  sub: "Encre, aquarelle, acrylique, crayon… — original physique inclus" },
-  { key: "digital",      label: "Digital",        sub: "Fichier numérique — email ou print au choix" },
-  { key: "lesdeux",      label: "Les deux",       sub: "Line art à l'encre scanné + couleur digitale — fichier livré par email ou print (+2 à 25€ selon format pour le scan)" },
+  { key: "digital",      label: "Digital",        sub: "Fichier numérique — email et/ou print" },
+  { key: "lesdeux",      label: "Les deux",       sub: "Line art à l'encre + couleur digitale — email et/ou print" },
 ];
 
 const SCAN_SUPPLEMENT: Record<string, number> = {
@@ -143,6 +143,8 @@ export default function CommissionsPage() {
   const [digitalQtys, setDigitalQtys] = useState<Partial<Record<PrintSizeKey, number>>>({});
   const [digitalEmailQtys, setDigitalEmailQtys] = useState<Partial<Record<string, number>>>({});
   const [tradiEmailQtys, setTradiEmailQtys] = useState<Partial<Record<PrintSizeKey, number>>>({});
+  const [wantDigitalEmail, setWantDigitalEmail] = useState(false);
+  const [wantTradiEmail, setWantTradiEmail] = useState(false);
   const [charteAccepted, setCharteAccepted] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<"stripe" | "paypal">("stripe");
   const [submitting, setSubmitting] = useState(false);
@@ -417,31 +419,18 @@ export default function CommissionsPage() {
                 })}
               </div>
 
-              <p className="text-xs font-semibold text-[#3A3631] mb-2 uppercase tracking-wide">Fichiers par e-mail</p>
-              <div className="flex flex-col gap-2">
-                {DIGITAL_SIZES.map(s => {
-                  const price = (digitalCatKey ? DIGITAL_COMMISSION_PRICES[digitalCatKey]?.[s]?.[color] : null) ?? 0;
-                  const scan = isLesDeux ? (SCAN_SUPPLEMENT[s] || 0) : 0;
-                  const qty = (digitalEmailQtys as Partial<Record<DigitalSizeKey, number>>)[s] || 0;
-                  return (
-                    <div key={s} className={`flex items-center justify-between gap-3 px-4 py-3 border transition-colors ${qty > 0 ? "border-[#181614] bg-[#F2F0EA]" : "border-[#DEDAD1]"}`}>
-                      <div>
-                        <span className="text-sm font-medium">Email {s}</span>
-                        <span className="text-xs text-[#8C8780] ml-2">{fmt2(DIGITAL_EMAIL_PRICE)}</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <button type="button" onClick={() => setDigitalEmailQtys((p: Partial<Record<string, number>>) => ({ ...p, [s]: Math.max(0, (p[s] || 0) - 1) }))} className="w-7 h-7 border border-[#DEDAD1] flex items-center justify-center hover:border-[#181614] text-sm">−</button>
-                        <span className="font-mono text-sm w-4 text-center">{qty}</span>
-                        <button type="button" onClick={() => setDigitalEmailQtys((p: Partial<Record<string, number>>) => ({ ...p, [s]: (p[s] || 0) + 1 }))} className="w-7 h-7 border border-[#DEDAD1] flex items-center justify-center hover:border-[#181614] text-sm">+</button>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
+              <p className="text-xs font-semibold text-[#3A3631] mb-2 uppercase tracking-wide">Fichier par e-mail</p>
+              <label className={`flex items-center justify-between gap-3 px-4 py-3 border cursor-pointer transition-colors ${wantDigitalEmail ? "border-[#181614] bg-[#F2F0EA]" : "border-[#DEDAD1]"}`}>
+                <div>
+                  <span className="text-sm font-medium">Fichier haute résolution par e-mail</span>
+                  <span className="text-xs text-[#8C8780] ml-2">{fmt2(DIGITAL_EMAIL_PRICE)}</span>
+                </div>
+                <input type="checkbox" checked={wantDigitalEmail} onChange={e => setWantDigitalEmail(e.target.checked)} className="accent-[#B23A24] w-4 h-4" />
+              </label>
             </section>
           )}
 
-          {/* Prints ET email optionnels pour tradi */}
+          {/* Scan email optionnel pour tradi et les deux */}
           {!isDigital && !hasDevis && (
             <section>
               <label className={labelCls}>5 — Options supplémentaires</label>
@@ -467,25 +456,13 @@ export default function CommissionsPage() {
               </div>
 
               <p className="text-xs font-semibold text-[#3A3631] mt-4 mb-2 uppercase tracking-wide">Scan par e-mail</p>
-              <div className="flex flex-col gap-2">
-                {PRINT_SIZES.map(s => {
-                  const emailQty = tradiEmailQtys[s] || 0;
-                  const emailPrice = TRADI_EMAIL_PRICES[s];
-                  return (
-                    <div key={s} className={`flex items-center justify-between gap-3 px-4 py-3 border transition-colors ${emailQty > 0 ? "border-[#181614] bg-[#F2F0EA]" : "border-[#DEDAD1]"}`}>
-                      <div>
-                        <span className="text-sm font-medium">Scan {s}</span>
-                        <span className="text-xs text-[#8C8780] ml-2">{fmt2(emailPrice)}</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <button type="button" onClick={() => setTradiEmailQtys(p => ({ ...p, [s]: Math.max(0, (p[s] || 0) - 1) }))} className="w-7 h-7 border border-[#DEDAD1] flex items-center justify-center hover:border-[#181614] text-sm">−</button>
-                        <span className="font-mono text-sm w-4 text-center">{emailQty}</span>
-                        <button type="button" onClick={() => setTradiEmailQtys(p => ({ ...p, [s]: (p[s] || 0) + 1 }))} className="w-7 h-7 border border-[#DEDAD1] flex items-center justify-center hover:border-[#181614] text-sm">+</button>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
+              <label className={`flex items-center justify-between gap-3 px-4 py-3 border cursor-pointer transition-colors ${wantTradiEmail ? "border-[#181614] bg-[#F2F0EA]" : "border-[#DEDAD1]"}`}>
+                <div>
+                  <span className="text-sm font-medium">Scan haute résolution par e-mail</span>
+                  <span className="text-xs text-[#8C8780] ml-2">A5 3€ · A4 6€ · A3 12€ · A2 25€</span>
+                </div>
+                <input type="checkbox" checked={wantTradiEmail} onChange={e => setWantTradiEmail(e.target.checked)} className="accent-[#B23A24] w-4 h-4" />
+              </label>
             </section>
           )}
 
