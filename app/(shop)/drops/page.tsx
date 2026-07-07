@@ -86,42 +86,49 @@ export default function LimitesPage() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 justify-items-center max-w-2xl mx-auto">
           {products.map(p => {
-            const displayImg = (p.imagesOriginal && p.imagesOriginal.length > 0 ? p.imagesOriginal : p.images)[0];
             const remaining = p.editionTotal > 0 ? Math.max(p.editionTotal - p.editionSold, 0) : null;
             const sold = p.editionSold || 0;
             return (
-              <Link key={p.id} href={`/prints/${p.id}?from=originals`} className="flex gap-5 border border-[#DEDAD1] bg-[#FAFAF8] hover:border-[#181614] transition-colors p-4 group w-full">
-                <div className="w-28 h-28 flex-shrink-0 bg-[#F2F0EA] overflow-hidden border border-[#DEDAD1]">
-                  {displayImg ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={displayImg} alt={p.title} className="w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-300" />
-                  ) : (
-                    <div className="w-full h-full" />
-                  )}
-                </div>
-                <div className="flex flex-col justify-between flex-1 min-w-0">
-                  <div>
-                    <p className="font-serif text-[17px] text-[#181614] leading-tight mb-1">{p.title}</p>
-                    {p.medium && <p className="text-[12px] text-[#8C8780]">{p.medium}</p>}
-                  </div>
-                  <div className="flex flex-col gap-1.5 mt-2">
-                    {p.temporaryUntil && <Countdown until={p.temporaryUntil} />}
-                    <div className="flex flex-wrap gap-3 text-[12px]">
-                      {sold >= 1 && (
-                        <span className="text-[#3A7D44] font-medium">
-                          {sold === 1 ? "1 exemplaire vendu" : `${sold} exemplaires vendus`}
-                        </span>
-                      )}
-                      {remaining !== null && (
-                        <span className={`font-medium ${remaining <= 3 ? "text-[#B23A24]" : "text-[#3A3631]"}`}>
-                          {remaining === 0 ? "Épuisé" : `Il reste ${remaining} exemplaire${remaining > 1 ? "s" : ""}`}
-                        </span>
-                      )}
+              <Link key={p.id} href={`/prints/${p.id}`} className="border border-[#DEDAD1] bg-[#FAFAF8] hover:border-[#181614] transition-colors p-4 group w-full">
+                {/* Galerie photos — originales ET prints avec badge */}
+                {(() => {
+                  const allPhotos = [
+                    ...(p.imagesOriginal || []).map(url => ({ url, label: "Originale" })),
+                    ...p.images.map(url => ({ url, label: "Print" })),
+                  ];
+                  return allPhotos.length > 0 ? (
+                    <div className="flex gap-2 mb-4 overflow-x-auto pb-1">
+                      {allPhotos.map((photo, i) => (
+                        <div key={i} className="relative flex-shrink-0">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img src={photo.url} alt={p.title} className="w-28 h-28 object-cover border border-[#DEDAD1] group-hover:scale-[1.02] transition-transform duration-300" />
+                          <span className={`absolute bottom-0 left-0 right-0 text-[9px] font-semibold uppercase tracking-wide text-center py-0.5 ${photo.label === "Originale" ? "bg-[#B23A24] text-white" : "bg-[#181614] text-white"}`}>
+                            {photo.label}
+                          </span>
+                        </div>
+                      ))}
                     </div>
-                    <p className="font-mono text-sm font-semibold text-[#181614]">
-                      dès {fmt(minPrice(p))}
-                    </p>
+                  ) : null;
+                })()}
+                <div className="flex flex-col gap-1.5">
+                  <p className="font-serif text-[17px] text-[#181614] leading-tight">{p.title}</p>
+                  {p.medium && <p className="text-[12px] text-[#8C8780]">{p.medium}</p>}
+                  {p.temporaryUntil && <Countdown until={p.temporaryUntil} />}
+                  <div className="flex flex-wrap gap-3 text-[12px]">
+                    {sold >= 1 && (
+                      <span className="text-[#3A7D44] font-medium">
+                        {sold === 1 ? "1 exemplaire vendu" : `${sold} exemplaires vendus`}
+                      </span>
+                    )}
+                    {remaining !== null && (
+                      <span className={`font-medium ${remaining <= 3 ? "text-[#B23A24]" : "text-[#3A3631]"}`}>
+                        {remaining === 0 ? "Épuisé" : `Il reste ${remaining} exemplaire${remaining > 1 ? "s" : ""}`}
+                      </span>
+                    )}
                   </div>
+                  <p className="font-mono text-sm font-semibold text-[#181614]">
+                    dès {fmt(minPrice(p))}
+                  </p>
                 </div>
               </Link>
             );
