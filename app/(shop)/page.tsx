@@ -43,9 +43,16 @@ export default function HomePage() {
       .then((data) => setProducts(data.products || []));
   }, []);
 
-  // Produits chargés
+  // Scroller vers l'ancre après chargement des produits
   useEffect(() => {
     if (!products) return;
+    const hash = window.location.hash;
+    if (hash) {
+      setTimeout(() => {
+        const el = document.querySelector(hash);
+        if (el) el.scrollIntoView({ behavior: "smooth" });
+      }, 100);
+    }
   }, [products]);
 
   const now = Date.now();
