@@ -75,9 +75,13 @@ async function readDataAsync(): Promise<DataShape> {
   if (USE_SUPABASE) {
     try {
       const sb = await getSupabase();
-      const { data, error } = await sb.from("products").select("data").order("created_at", { ascending: false });
+      const { data, error } = await sb.from("products").select("data, sort_order").order("sort_order", { ascending: true, nullsFirst: false });
       if (error) throw error;
-      const products = (data || []).map((row: { data: Product }) => migrateProduct(row.data));
+      const products = (data || []).map((row: { data: Product; sort_order: number | null }) => {
+        const p = migrateProduct(row.data);
+        (p as Product & { sort_order?: number }).sort_order = row.sort_order ?? 999;
+        return p;
+      });
       return { products };
     } catch { /* fallback JSON */ }
   }
@@ -173,7 +177,7 @@ export async function createProduct(input: Omit<Product, "id" | "createdAt">): P
   return product;
 }
 
-export async function updateProduct(id: string, updates: Partial<Omit<Product, "id" | "createdAt">>): Promise<Product | null> {
+export async function updateProduct(id: string, updates: Partial<Omit<Product, "id" | "createdAt">> & { sort_order?: number }): Promise<Product | null> {
   if (USE_SUPABASE) {
     const sb = await getSupabase();
     const { data: row } = await sb.from("products").select("data").eq("id", id).single();
@@ -187,8 +191,11 @@ export async function updateProduct(id: string, updates: Partial<Omit<Product, "
         }
       }
     }
-    const updated = { ...row.data, ...updates };
-    await sb.from("products").upsert({ id, data: updated, created_at: updated.createdAt });
+    const { sort_order, ...productUpdates } = updates;
+    const updated = { ...row.data, ...productUpdates };
+    const upsertData: Record<string, unknown> = { id, data: updated, created_at: updated.createdAt };
+    if (sort_order !== undefined) upsertData.sort_order = sort_order;
+    await sb.from("products").upsert(upsertData);
     return updated;
   } else {
     const fs = require("fs");
