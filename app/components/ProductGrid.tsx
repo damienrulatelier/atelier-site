@@ -117,7 +117,7 @@ export default function ProductGrid({ products, context }: { products: Product[]
 
           // isNew : auto 3 jours — jamais sur un drop
           const isNew = !p.temporaryUntil && (p.createdAt
-            ? Date.now() - new Date(p.createdAt).getTime() < 3 * 24 * 60 * 60 * 1000
+            ? Date.now() - new Date(p.createdAt).getTime() < 5 * 24 * 60 * 60 * 1000
             : false);
 
           return (

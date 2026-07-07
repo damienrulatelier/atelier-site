@@ -16,7 +16,7 @@ export default function NouveautesPage() {
         const all = (data.products || []).filter((p: Product) => p.active && p.type !== "bd");
         const marked = all.filter((p: Product) => p.isNew);
         const recent = all
-          .filter((p: Product) => !p.isNew && Date.now() - new Date(p.createdAt).getTime() < 30 * 24 * 60 * 60 * 1000)
+          .filter((p: Product) => !p.isNew && Date.now() - new Date(p.createdAt).getTime() < 5 * 24 * 60 * 60 * 1000)
           .sort((a: Product, b: Product) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
         setProducts([...marked, ...recent]);
       });
