@@ -87,7 +87,8 @@ const TRADI_EMAIL_PRICES: Record<PrintSizeKey, number> = {
   A5: 3, A4: 6, A3: 12, A2: 25,
 };
 
-const DIGITAL_EMAIL_PRICE = 3;
+const DIGITAL_EMAIL_PRICE_NB = 30;
+const DIGITAL_EMAIL_PRICE_COLOR = 40;
 
 function fmt2(n: number) {
   return n.toFixed(2).replace(".", ",") + " €";
@@ -147,6 +148,7 @@ export default function CommissionsPage() {
   const [wantTradiEmail, setWantTradiEmail] = useState(false);
   const [lesDuexScanFormat, setLesDuexScanFormat] = useState<"A5"|"A4"|"A3"|"A2"|"A1"|null>(null);
   const [lesDuexScanQtys, setLesDuexScanQtys] = useState<Record<string, number>>({});
+  const [wantLesDuexEmail, setWantLesDuexEmail] = useState(false);
   const [charteAccepted, setCharteAccepted] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<"stripe" | "paypal">("stripe");
   const [submitting, setSubmitting] = useState(false);
@@ -171,14 +173,17 @@ export default function CommissionsPage() {
   // Format principal pour l'acompte (le plus grand format commandé)
   const mainSize: SizeKey = (["A2", "A3", "A4", "A5"] as SizeKey[]).find(s => (sizeQtys[s] || 0) > 0) || size;
 
-  // Pour digital et les deux — total par format × quantité + supplément scan si Les deux
+  const digitalEmailPrice = color === "nb" ? DIGITAL_EMAIL_PRICE_NB : DIGITAL_EMAIL_PRICE_COLOR;
+  const digitalPrintDiscount = (wantDigitalEmail && !isLesDeux) || wantLesDuexEmail ? 0.8 : 1;
   const digitalTotal = digitalCatKey
     ? DIGITAL_SIZES.reduce((s, k) => {
         const qty = (digitalQtys as Partial<Record<DigitalSizeKey, number>>)[k] || 0;
         const price = DIGITAL_COMMISSION_PRICES[digitalCatKey]?.[k]?.[color] ?? 0;
         const scan = isLesDeux ? (SCAN_SUPPLEMENT[k] || 0) : 0;
-        return s + qty * (price + scan);
+        return s + qty * (price + scan) * digitalPrintDiscount;
       }, 0)
+      + (wantDigitalEmail && !isLesDeux ? digitalEmailPrice : 0)
+      + (wantLesDuexEmail ? 30 : 0)
     : 0;
 
   const basePrice = isDigital ? (digitalTotal > 0 ? digitalTotal : null) : tradiBasePrice;
@@ -409,7 +414,12 @@ export default function CommissionsPage() {
                     <div key={s} className={`flex items-center justify-between gap-3 px-4 py-3 border transition-colors ${qty > 0 ? "border-[#181614] bg-[#F2F0EA]" : "border-[#DEDAD1]"}`}>
                       <div>
                         <span className="text-sm font-medium">Print {s}</span>
-                        <span className="text-xs text-[#8C8780] ml-2">{fmt2(price + scan)}{scan > 0 ? ` (dont +${scan}€ scan)` : ""}</span>
+                        <span className="text-xs text-[#8C8780] ml-2">
+                          {(wantDigitalEmail && !isLesDeux) || wantLesDuexEmail
+                            ? <><span className="line-through">{fmt2(price + scan)}</span> {fmt2((price + scan) * 0.8)}<span className="text-[#3A7D44] ml-1">−20%</span></>
+                            : <>{fmt2(price + scan)}{scan > 0 ? ` (dont +${scan}€ scan)` : ""}</>
+                          }
+                        </span>
                       </div>
                       <div className="flex items-center gap-2">
                         <button type="button" onClick={() => setDigitalQtys((p: Partial<Record<string, number>>) => ({ ...p, [s]: Math.max(0, (p[s] || 0) - 1) }))} className="w-7 h-7 border border-[#DEDAD1] flex items-center justify-center hover:border-[#181614] text-sm">−</button>
@@ -427,7 +437,7 @@ export default function CommissionsPage() {
                   <label className={`flex items-center justify-between gap-3 px-4 py-3 border cursor-pointer transition-colors ${wantDigitalEmail ? "border-[#181614] bg-[#F2F0EA]" : "border-[#DEDAD1]"}`}>
                     <div>
                       <span className="text-sm font-medium">Fichier haute résolution par e-mail</span>
-                      <span className="text-xs text-[#8C8780] ml-2">{fmt2(DIGITAL_EMAIL_PRICE)}</span>
+                      <span className="text-xs text-[#8C8780] ml-2">{fmt2(color === "nb" ? DIGITAL_EMAIL_PRICE_NB : DIGITAL_EMAIL_PRICE_COLOR)}</span>
                     </div>
                     <input type="checkbox" checked={wantDigitalEmail} onChange={e => setWantDigitalEmail(e.target.checked)} className="accent-[#B23A24] w-4 h-4" />
                   </label>
@@ -469,6 +479,13 @@ export default function CommissionsPage() {
               <p className="text-xs font-semibold text-[#3A3631] mt-2 mb-2 uppercase tracking-wide">Scan par e-mail</p>
               {isLesDeux ? (
                 <>
+                  <label className={`flex items-center justify-between gap-3 px-4 py-3 border cursor-pointer transition-colors mb-2 ${wantLesDuexEmail ? "border-[#181614] bg-[#F2F0EA]" : "border-[#DEDAD1]"}`}>
+                    <div>
+                      <span className="text-sm font-medium">Fichier numérique par e-mail</span>
+                      <span className="text-xs text-[#8C8780] ml-2">+30€ — −20% sur les prints</span>
+                    </div>
+                    <input type="checkbox" checked={wantLesDuexEmail} onChange={e => setWantLesDuexEmail(e.target.checked)} className="accent-[#B23A24] w-4 h-4" />
+                  </label>
                   <p className="text-xs text-[#8C8780] mb-2">Format de la feuille originale scanné et envoyé par e-mail.</p>
                   <div className="flex flex-col gap-2">
                     {(["A5", "A4", "A3", "A2", "A1"] as const).map(s => {
