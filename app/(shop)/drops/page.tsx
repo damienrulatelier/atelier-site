@@ -102,7 +102,7 @@ export default function LimitesPage() {
               <Link key={p.id} href={`/prints/${p.id}`} className="flex gap-5 border border-[#DEDAD1] bg-[#FAFAF8] hover:border-[#181614] transition-colors p-4 group">
                 {/* Image */}
                 <div className="w-28 h-28 flex-shrink-0 bg-[#F2F0EA] overflow-hidden border border-[#DEDAD1]">
-                  {p.images[0] ? (
+                  {(p.imagesOriginal?.length ? p.imagesOriginal : p.images)[0] ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img src={(p.imagesOriginal?.length ? p.imagesOriginal : p.images)[0]} alt={p.title} className="w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-300" />
                   ) : (
