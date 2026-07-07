@@ -135,6 +135,8 @@ export default function CommissionsPage() {
   const [formats, setFormats] = useState("");
   const [printQtys, setPrintQtys] = useState<Partial<Record<PrintSizeKey, number>>>({});
   const [digitalQtys, setDigitalQtys] = useState<Partial<Record<PrintSizeKey, number>>>({});
+  const [digitalEmailQtys, setDigitalEmailQtys] = useState<Partial<Record<string, number>>>({});
+  const [tradiEmailQtys, setTradiEmailQtys] = useState<Partial<Record<PrintSizeKey, number>>>({});
   const [charteAccepted, setCharteAccepted] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<"stripe" | "paypal">("stripe");
   const [submitting, setSubmitting] = useState(false);
@@ -376,36 +378,19 @@ export default function CommissionsPage() {
             )}
           </section>
 
-          {/* Formats digitaux avec quantités */}
+          {/* Formats digitaux avec quantités — prints ET email indépendants */}
           {isDigital && !hasDevis && (
             <section>
-              <label className={labelCls}>{hasDevis ? "3" : "5"} — Formats et exemplaires</label>
-
-              {/* Choix livraison email ou print */}
-              <div className="flex gap-3 mb-3">
-                <label className={`flex-1 flex items-center gap-2 p-3 border cursor-pointer transition-colors ${deliveryDigital === "print" ? "border-[#181614] bg-[#F2F0EA]" : "border-[#DEDAD1]"}`}>
-                  <input type="radio" name="deliveryDigital" checked={deliveryDigital === "print"} onChange={() => setDeliveryDigital("print")} className="accent-[#B23A24]" />
-                  <div>
-                    <div className="text-sm font-medium">Print (tirage papier)</div>
-                    <div className="text-xs text-[#8C8780]">Imprimé et expédié</div>
-                  </div>
-                </label>
-                <label className={`flex-1 flex items-center gap-2 p-3 border cursor-pointer transition-colors ${deliveryDigital === "email" ? "border-[#181614] bg-[#F2F0EA]" : "border-[#DEDAD1]"}`}>
-                  <input type="radio" name="deliveryDigital" checked={deliveryDigital === "email"} onChange={() => setDeliveryDigital("email")} className="accent-[#B23A24]" />
-                  <div>
-                    <div className="text-sm font-medium">Fichier par e-mail</div>
-                    <div className="text-xs text-[#8C8780]">Haute résolution, usage personnel</div>
-                  </div>
-                </label>
-              </div>
+              <label className={labelCls}>5 — Formats et exemplaires</label>
 
               {isLesDeux && (
                 <p className="text-xs text-[#8C8780] mb-3">
-                  ✦ Supplément scan inclus dans le prix (line art encre scanné avant la mise en couleur digitale)
+                  ✦ Supplément scan inclus dans le prix
                 </p>
               )}
 
-              <div className="flex flex-col gap-2">
+              <p className="text-xs font-semibold text-[#3A3631] mb-2 uppercase tracking-wide">Tirages print</p>
+              <div className="flex flex-col gap-2 mb-4">
                 {DIGITAL_SIZES.map(s => {
                   const price = (digitalCatKey ? DIGITAL_COMMISSION_PRICES[digitalCatKey]?.[s]?.[color] : null) ?? 0;
                   const scan = isLesDeux ? (SCAN_SUPPLEMENT[s] || 0) : 0;
@@ -413,10 +398,8 @@ export default function CommissionsPage() {
                   return (
                     <div key={s} className={`flex items-center justify-between gap-3 px-4 py-3 border transition-colors ${qty > 0 ? "border-[#181614] bg-[#F2F0EA]" : "border-[#DEDAD1]"}`}>
                       <div>
-                        <span className="text-sm font-medium">Format {s}</span>
-                        <span className="text-xs text-[#8C8780] ml-2">
-                          {fmt2(price + scan)} / exemplaire{scan > 0 ? ` (dont +${scan}€ scan)` : ""}
-                        </span>
+                        <span className="text-sm font-medium">Print {s}</span>
+                        <span className="text-xs text-[#8C8780] ml-2">{fmt2(price + scan)}{scan > 0 ? ` (dont +${scan}€ scan)` : ""}</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <button type="button" onClick={() => setDigitalQtys((p: Partial<Record<string, number>>) => ({ ...p, [s]: Math.max(0, (p[s] || 0) - 1) }))} className="w-7 h-7 border border-[#DEDAD1] flex items-center justify-center hover:border-[#181614] text-sm">−</button>
@@ -427,15 +410,38 @@ export default function CommissionsPage() {
                   );
                 })}
               </div>
+
+              <p className="text-xs font-semibold text-[#3A3631] mb-2 uppercase tracking-wide">Fichiers par e-mail</p>
+              <div className="flex flex-col gap-2">
+                {DIGITAL_SIZES.map(s => {
+                  const price = (digitalCatKey ? DIGITAL_COMMISSION_PRICES[digitalCatKey]?.[s]?.[color] : null) ?? 0;
+                  const scan = isLesDeux ? (SCAN_SUPPLEMENT[s] || 0) : 0;
+                  const qty = (digitalEmailQtys as Partial<Record<DigitalSizeKey, number>>)[s] || 0;
+                  return (
+                    <div key={s} className={`flex items-center justify-between gap-3 px-4 py-3 border transition-colors ${qty > 0 ? "border-[#181614] bg-[#F2F0EA]" : "border-[#DEDAD1]"}`}>
+                      <div>
+                        <span className="text-sm font-medium">Email {s}</span>
+                        <span className="text-xs text-[#8C8780] ml-2">{fmt2(price + scan)}{scan > 0 ? ` (dont +${scan}€ scan)` : ""}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <button type="button" onClick={() => setDigitalEmailQtys((p: Partial<Record<string, number>>) => ({ ...p, [s]: Math.max(0, (p[s] || 0) - 1) }))} className="w-7 h-7 border border-[#DEDAD1] flex items-center justify-center hover:border-[#181614] text-sm">−</button>
+                        <span className="font-mono text-sm w-4 text-center">{qty}</span>
+                        <button type="button" onClick={() => setDigitalEmailQtys((p: Partial<Record<string, number>>) => ({ ...p, [s]: (p[s] || 0) + 1 }))} className="w-7 h-7 border border-[#DEDAD1] flex items-center justify-center hover:border-[#181614] text-sm">+</button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
             </section>
           )}
 
-          {/* Prints optionnels — uniquement pour référence et imagination en traditionnel */}
+          {/* Prints ET email optionnels pour tradi */}
           {!isDigital && !hasDevis && (
             <section>
-              <label className={labelCls}>{hasDevis ? "3" : "5"} — Prints optionnels</label>
-              <p className="text-xs text-[#8C8780] mb-3">En plus de l&rsquo;original, tu peux commander des tirages papier. Le prix s&rsquo;additionne.</p>
-              <div className="flex flex-col gap-2">
+              <label className={labelCls}>5 — Options supplémentaires</label>
+              <p className="text-xs font-semibold text-[#3A3631] mb-2 uppercase tracking-wide">Tirages print</p>
+              <p className="text-xs text-[#8C8780] mb-2">En plus de l&rsquo;original, tu peux commander des tirages papier.</p>
+              <div className="flex flex-col gap-2 mb-4">
                 {PRINT_SIZES.map(s => {
                   const qty = printQtys[s] || 0;
                   return (
@@ -448,6 +454,30 @@ export default function CommissionsPage() {
                         <button type="button" onClick={() => setPrintQty(s, qty - 1)} className="w-7 h-7 border border-[#DEDAD1] flex items-center justify-center hover:border-[#181614] text-sm">−</button>
                         <span className="font-mono text-sm w-4 text-center">{qty}</span>
                         <button type="button" onClick={() => setPrintQty(s, qty + 1)} className="w-7 h-7 border border-[#DEDAD1] flex items-center justify-center hover:border-[#181614] text-sm">+</button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              <p className="text-xs font-semibold text-[#3A3631] mt-4 mb-2 uppercase tracking-wide">Scan par e-mail</p>
+              <p className="text-xs text-[#8C8780] mb-2">Scan haute résolution de l&rsquo;original — je garde l&rsquo;original.</p>
+              <div className="flex flex-col gap-2">
+                {PRINT_SIZES.map(s => {
+                  const emailQty = tradiEmailQtys[s] || 0;
+                  const baseP = (category === "reference" || category === "imagination") ? (PRICES[category]?.[s as SizeKey]?.[color] ?? 0) : 0;
+                  const discount = s === "A5" ? 5 : s === "A4" ? 6 : s === "A3" ? 8 : 12;
+                  const emailPrice = baseP > 0 ? Math.max(baseP - discount, 0) : 0;
+                  return (
+                    <div key={s} className={`flex items-center justify-between gap-3 px-4 py-3 border transition-colors ${emailQty > 0 ? "border-[#181614] bg-[#F2F0EA]" : "border-[#DEDAD1]"}`}>
+                      <div>
+                        <span className="text-sm font-medium">Scan {s}</span>
+                        <span className="text-xs text-[#8C8780] ml-2">{emailPrice > 0 ? fmt2(emailPrice) : ""}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <button type="button" onClick={() => setTradiEmailQtys(p => ({ ...p, [s]: Math.max(0, (p[s] || 0) - 1) }))} className="w-7 h-7 border border-[#DEDAD1] flex items-center justify-center hover:border-[#181614] text-sm">−</button>
+                        <span className="font-mono text-sm w-4 text-center">{emailQty}</span>
+                        <button type="button" onClick={() => setTradiEmailQtys(p => ({ ...p, [s]: (p[s] || 0) + 1 }))} className="w-7 h-7 border border-[#DEDAD1] flex items-center justify-center hover:border-[#181614] text-sm">+</button>
                       </div>
                     </div>
                   );
