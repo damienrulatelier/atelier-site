@@ -93,7 +93,7 @@ export default function LimitesPage() {
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 justify-items-center max-w-2xl mx-auto">
           {products.map(p => {
             const remaining = p.editionTotal > 0 ? Math.max(p.editionTotal - p.editionSold, 0) : null;
             const sold = p.editionSold || 0;
@@ -104,7 +104,7 @@ export default function LimitesPage() {
                 <div className="w-28 h-28 flex-shrink-0 bg-[#F2F0EA] overflow-hidden border border-[#DEDAD1]">
                   {p.images[0] ? (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img src={p.images[0]} alt={p.title} className="w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-300" />
+                    <img src={(p.imagesOriginal?.length ? p.imagesOriginal : p.images)[0]} alt={p.title} className="w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-300" />
                   ) : (
                     <div className="w-full h-full" />
                   )}

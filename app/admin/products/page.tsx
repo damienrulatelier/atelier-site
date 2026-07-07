@@ -140,7 +140,7 @@ export default function AdminProductsPage() {
                 <div className="flex-1 min-w-0">
                   <p className="font-medium text-[#181614] truncate">{p.title}</p>
                   <p className="text-xs text-[#8C8780] uppercase tracking-wide">
-                    {p.type === "bd" ? "Bande dessinée" : p.type === "original" ? "Original" : "Print"}
+                    {p.type === "bd" ? "Bande dessinée" : p.type === "original" ? "Original" : p.type === "drop" ? "Drop" : "Print"}
                     {p.allowDedication ? " · Dédicace activée" : ""}
                   </p>
                 </div>
