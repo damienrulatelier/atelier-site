@@ -66,7 +66,7 @@ export default function LimitesPage() {
       .then(r => r.json())
       .then(data => {
         const limites = (data.products || []).filter((p: Product) =>
-          p.active && p.temporaryUntil && new Date(p.temporaryUntil).getTime() > Date.now()
+          p.active && (p.type === "drop" || (p.temporaryUntil && new Date(p.temporaryUntil).getTime() > Date.now()))
         ).sort((a: Product, b: Product) =>
           new Date(a.temporaryUntil!).getTime() - new Date(b.temporaryUntil!).getTime()
         );

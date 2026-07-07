@@ -61,7 +61,7 @@ export default function HomePage() {
 
   const now = Date.now();
   const drops = products?.filter((p) =>
-    p.temporaryUntil && new Date(p.temporaryUntil).getTime() > now
+    p.type === "drop" || (p.temporaryUntil && new Date(p.temporaryUntil).getTime() > now)
   ) || [];
   // Un produit avec delivery.print activé apparaît dans Prints, peu importe son type
   const prints = products?.filter((p) =>
