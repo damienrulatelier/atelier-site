@@ -94,6 +94,7 @@ const isDevis = (c: CategoryKey) => c === "provisuel" || c === "surmesure";
 export default function CommissionsPage() {
   const [category, setCategory] = useState<CategoryKey>("reference");
   const [size, setSize]         = useState<SizeKey>("A5");
+  const [sizeQtys, setSizeQtys] = useState<Partial<Record<SizeKey, number>>>({});
   const [color, setColor]       = useState<ColorKey>("nb");
   const [medium, setMedium]     = useState<MediumKey>("traditionnel");
   const [digitalSize, setDigitalSize] = useState<DigitalSizeKey>("A5");
@@ -148,7 +149,15 @@ export default function CommissionsPage() {
 
   const digitalCatKey = (category === "reference" || category === "imagination") ? category : null;
   const priceTable  = isByMail ? PRICES_MAIL : PRICES;
-  const tradiBasePrice = hasDevis ? null : priceTable[category]?.[size]?.[color] ?? null;
+  // Calcul total tradi avec multi-formats
+  const tradiTotal = hasDevis ? 0 : (["A5", "A4", "A3", "A2"] as SizeKey[]).reduce((sum, s) => {
+    const qty = sizeQtys[s] || 0;
+    const price = priceTable[category]?.[s]?.[color] ?? 0;
+    return sum + qty * price;
+  }, 0);
+  const tradiBasePrice = hasDevis ? null : tradiTotal > 0 ? tradiTotal : null;
+  // Format principal pour l'acompte (le plus grand format commandé)
+  const mainSize: SizeKey = (["A2", "A3", "A4", "A5"] as SizeKey[]).find(s => (sizeQtys[s] || 0) > 0) || size;
 
   // Pour digital et les deux — total par format × quantité + supplément scan si Les deux
   const digitalTotal = digitalCatKey
@@ -164,9 +173,9 @@ export default function CommissionsPage() {
 
   const deposit = hasDevis ? null : isDigital
     ? 10
-    : size === "A5" ? 5
-    : size === "A4" ? 8
-    : size === "A3" ? 10
+    : mainSize === "A5" ? 5
+    : mainSize === "A4" ? 8
+    : mainSize === "A3" ? 10
     : 20;
 
   const printsTotal = PRINT_SIZES.reduce((s, k) => s + (printQtys[k] || 0) * PRINT_PRICES[k], 0);
@@ -196,7 +205,11 @@ export default function CommissionsPage() {
     const body = new FormData();
     body.append("category", CATEGORIES.find(c => c.key === category)?.title || category);
     if (!hasDevis && basePrice !== null) {
-      body.append("size",           size);
+      const sizesSummary = (["A5", "A4", "A3", "A2"] as SizeKey[])
+        .filter(s => (sizeQtys[s] || 0) > 0)
+        .map(s => `${sizeQtys[s]}× ${s}`)
+        .join(", ");
+      body.append("size", sizesSummary || mainSize);
       body.append("color",          color === "nb" ? "Noir & blanc" : "Couleur");
       body.append("estimatedPrice", fmt2(basePrice));
       body.append("deposit",        fmt2(deposit!));
@@ -209,6 +222,7 @@ export default function CommissionsPage() {
     if (digitalSummary) body.append("digital", digitalSummary);
 
     if (!hasDevis) body.append("paymentMethod", paymentMethod);
+    if (!hasDevis) body.append("mainSize", mainSize);
 
     try {
       const res = await fetch("/api/commissions", { method: "POST", body });
@@ -278,22 +292,34 @@ export default function CommissionsPage() {
             </div>
           </section>
 
-          {/* 2. Taille — A5/A3 pour tradi, A5→A1 pour digital */}
+          {/* 2. Formats — compteurs quantité avec prix */}
           {!hasDevis && !isDigital && (
             <section>
-              <label className={labelCls}>2 — Format de l&rsquo;illustration originale</label>
-              <div className="grid grid-cols-2 gap-3">
-                {(["A5", "A4", "A3", "A2"] as SizeKey[]).map(s => (
-                  <label key={s} className={`flex items-center gap-3 p-4 border cursor-pointer transition-colors ${size === s ? "border-[#181614] bg-[#F2F0EA]" : "border-[#DEDAD1]"}`}>
-                    <input type="radio" name="size" checked={size === s} onChange={() => setSize(s)} className="accent-[#B23A24]" />
-                    <div>
-                      <div className="text-sm font-semibold">{s}</div>
-                      <div className="text-xs text-[#8C8780]">
-                        {s === "A5" ? "14,8 × 21 cm" : s === "A4" ? "21 × 29,7 cm" : s === "A3" ? "29,7 × 42 cm" : "42 × 59,4 cm"}
+              <label className={labelCls}>2 — Formats et quantités</label>
+              <p className="text-xs text-[#8C8780] mb-3">Tu peux commander plusieurs formats et plusieurs exemplaires.</p>
+              <div className="flex flex-col gap-2">
+                {(["A5", "A4", "A3", "A2"] as SizeKey[]).map(s => {
+                  const catKey = (category === "reference" || category === "imagination") ? category : null;
+                  const priceTable = isByMail ? PRICES_MAIL : PRICES;
+                  const price = catKey ? priceTable[catKey]?.[s]?.[color] ?? null : null;
+                  const qty = sizeQtys[s] || 0;
+                  return (
+                    <div key={s} className={`flex items-center justify-between gap-3 px-4 py-3 border transition-colors ${qty > 0 ? "border-[#181614] bg-[#F2F0EA]" : "border-[#DEDAD1]"}`}>
+                      <div>
+                        <span className="text-sm font-medium">{s}</span>
+                        <span className="text-xs text-[#8C8780] ml-2">
+                          {s === "A5" ? "14,8 × 21 cm" : s === "A4" ? "21 × 29,7 cm" : s === "A3" ? "29,7 × 42 cm" : "42 × 59,4 cm"}
+                          {price ? ` — ${fmt2(price)}` : ""}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <button type="button" onClick={() => setSizeQtys(p => ({ ...p, [s]: Math.max(0, (p[s] || 0) - 1) }))} className="w-7 h-7 border border-[#DEDAD1] flex items-center justify-center hover:border-[#181614] text-sm">−</button>
+                        <span className="font-mono text-sm w-4 text-center">{qty}</span>
+                        <button type="button" onClick={() => setSizeQtys(p => ({ ...p, [s]: (p[s] || 0) + 1 }))} className="w-7 h-7 border border-[#DEDAD1] flex items-center justify-center hover:border-[#181614] text-sm">+</button>
                       </div>
                     </div>
-                  </label>
-                ))}
+                  );
+                })}
               </div>
             </section>
           )}

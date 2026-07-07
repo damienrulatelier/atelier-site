@@ -18,6 +18,7 @@ export async function POST(req: NextRequest) {
 
   const category       = (formData.get("category") as string) || "";
   const size           = (formData.get("size") as string) || "";
+  const mainSize       = (formData.get("mainSize") as string) || size;
   const color          = (formData.get("color") as string) || "";
   const medium         = (formData.get("medium") as string) || "";
   const description    = (formData.get("description") as string) || "";
@@ -66,11 +67,11 @@ export async function POST(req: NextRequest) {
 
   // Pour référence et imagination — créer session de paiement
   const depositAmount = (() => {
-    if (size === "A5") return 500;
-    if (size === "A4") return 800;
-    if (size === "A3") return 1000;
-    if (size === "A2") return 2000;
-    return 1000; // digital
+    if (mainSize === "A5") return 500;
+    if (mainSize === "A4") return 800;
+    if (mainSize === "A3") return 1000;
+    if (mainSize === "A2") return 2000;
+    return 1000;
   })();
 
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
