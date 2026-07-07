@@ -24,7 +24,7 @@ const CATEGORIES: { key: CategoryKey; title: string; description: string }[] = [
   {
     key: "surmesure",
     title: "Sur mesure",
-    description: "Peinture (aquarelle, acrylique, huile), illustration multi-pages, commande longue durée, projet hybride… Tout ce qui ne rentre pas dans les catégories ci-dessus. Décris ton projet, on construit ensemble le tarif et le planning.",
+    description: "Peinture (aquarelle, acrylique, huile), illustration multi-pages, œuvre digitale de toute sorte (abstrait, expérimental, génératif…), commande longue durée, projet hybride… Tout ce qui ne rentre pas dans les catégories ci-dessus. Décris ton projet, on construit ensemble le tarif et le planning.",
   },
   {
     key: "provisuel",
