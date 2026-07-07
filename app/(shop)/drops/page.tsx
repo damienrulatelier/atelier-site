@@ -20,7 +20,7 @@ function Countdown({ until }: { until: string }) {
       const s = Math.floor((diff % 60000) / 1000);
       if (h >= 24) {
         const d = Math.floor(h / 24);
-        setTimeLeft(`${d}j ${h % 24}h ${m}m`);
+        setTimeLeft(`${d}j ${h % 24}h ${String(m).padStart(2,"0")}m ${String(s).padStart(2,"0")}s`);
       } else {
         setTimeLeft(`${String(h).padStart(2,"0")}h ${String(m).padStart(2,"0")}m ${String(s).padStart(2,"0")}s`);
       }
