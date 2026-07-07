@@ -434,28 +434,32 @@ export default function CommissionsPage() {
           {(!isDigital || isLesDeux) && !hasDevis && (
             <section>
               <label className={labelCls}>5 — Options supplémentaires</label>
-              <p className="text-xs font-semibold text-[#3A3631] mb-2 uppercase tracking-wide">Tirages print</p>
-              <p className="text-xs text-[#8C8780] mb-2">En plus de l&rsquo;original, tu peux commander des tirages papier.</p>
-              <div className="flex flex-col gap-2 mb-4">
-                {PRINT_SIZES.map(s => {
-                  const qty = printQtys[s] || 0;
-                  return (
-                    <div key={s} className={`flex items-center justify-between gap-3 px-4 py-3 border transition-colors ${qty > 0 ? "border-[#181614] bg-[#F2F0EA]" : "border-[#DEDAD1]"}`}>
-                      <div>
-                        <span className="text-sm font-medium">Format {s}</span>
-                        <span className="text-xs text-[#8C8780] ml-2">{fmt2(PRINT_PRICES[s])}</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <button type="button" onClick={() => setPrintQty(s, qty - 1)} className="w-7 h-7 border border-[#DEDAD1] flex items-center justify-center hover:border-[#181614] text-sm">−</button>
-                        <span className="font-mono text-sm w-4 text-center">{qty}</span>
-                        <button type="button" onClick={() => setPrintQty(s, qty + 1)} className="w-7 h-7 border border-[#DEDAD1] flex items-center justify-center hover:border-[#181614] text-sm">+</button>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
+              {!isLesDeux && (
+                <>
+                  <p className="text-xs font-semibold text-[#3A3631] mb-2 uppercase tracking-wide">Tirages print</p>
+                  <p className="text-xs text-[#8C8780] mb-2">En plus de l&rsquo;original, tu peux commander des tirages papier.</p>
+                  <div className="flex flex-col gap-2 mb-4">
+                    {PRINT_SIZES.map(s => {
+                      const qty = printQtys[s] || 0;
+                      return (
+                        <div key={s} className={`flex items-center justify-between gap-3 px-4 py-3 border transition-colors ${qty > 0 ? "border-[#181614] bg-[#F2F0EA]" : "border-[#DEDAD1]"}`}>
+                          <div>
+                            <span className="text-sm font-medium">Format {s}</span>
+                            <span className="text-xs text-[#8C8780] ml-2">{fmt2(PRINT_PRICES[s])}</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <button type="button" onClick={() => setPrintQty(s, qty - 1)} className="w-7 h-7 border border-[#DEDAD1] flex items-center justify-center hover:border-[#181614] text-sm">−</button>
+                            <span className="font-mono text-sm w-4 text-center">{qty}</span>
+                            <button type="button" onClick={() => setPrintQty(s, qty + 1)} className="w-7 h-7 border border-[#DEDAD1] flex items-center justify-center hover:border-[#181614] text-sm">+</button>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </>
+              )}
 
-              <p className="text-xs font-semibold text-[#3A3631] mt-4 mb-2 uppercase tracking-wide">Scan par e-mail</p>
+              <p className="text-xs font-semibold text-[#3A3631] mt-2 mb-2 uppercase tracking-wide">Scan par e-mail</p>
               <label className={`flex items-center justify-between gap-3 px-4 py-3 border cursor-pointer transition-colors ${wantTradiEmail ? "border-[#181614] bg-[#F2F0EA]" : "border-[#DEDAD1]"}`}>
                 <div>
                   <span className="text-sm font-medium">Scan haute résolution par e-mail</span>
