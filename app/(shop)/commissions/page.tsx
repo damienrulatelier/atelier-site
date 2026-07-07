@@ -427,7 +427,7 @@ export default function CommissionsPage() {
           {/* Scan email optionnel pour tradi et les deux */}
           {(!isDigital || isLesDeux) && !hasDevis && (
             <section>
-              <label className={labelCls}>5 — Options supplémentaires</label>
+              <label className={labelCls}>5 — Livraison</label>
               {!isLesDeux && (
                 <>
                   <p className="text-xs font-semibold text-[#3A3631] mb-2 uppercase tracking-wide">Tirages print</p>
