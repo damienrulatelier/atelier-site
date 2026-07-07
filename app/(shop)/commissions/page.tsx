@@ -467,7 +467,6 @@ export default function CommissionsPage() {
               </div>
 
               <p className="text-xs font-semibold text-[#3A3631] mt-4 mb-2 uppercase tracking-wide">Scan par e-mail</p>
-              <p className="text-xs text-[#8C8780] mb-2">Scan haute résolution de l&rsquo;original — je garde l&rsquo;original.</p>
               <div className="flex flex-col gap-2">
                 {PRINT_SIZES.map(s => {
                   const emailQty = tradiEmailQtys[s] || 0;
