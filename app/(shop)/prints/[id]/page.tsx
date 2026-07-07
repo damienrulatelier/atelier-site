@@ -458,7 +458,7 @@ export default function PrintDetailPage() {
               >
                 <div
                   className="w-full border-[3px]"
-                  style={{ borderColor: frameColor, filter: "brightness(1.25)" }}
+                  style={{ borderColor: frameColor }}
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
