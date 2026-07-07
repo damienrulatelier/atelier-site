@@ -145,6 +145,8 @@ export default function CommissionsPage() {
   const [tradiEmailQtys, setTradiEmailQtys] = useState<Partial<Record<PrintSizeKey, number>>>({});
   const [wantDigitalEmail, setWantDigitalEmail] = useState(false);
   const [wantTradiEmail, setWantTradiEmail] = useState(false);
+  const [lesDuexScanFormat, setLesDuexScanFormat] = useState<"A5"|"A4"|"A3"|"A2"|"A1"|null>(null);
+  const [lesDuexScanQtys, setLesDuexScanQtys] = useState<Record<string, number>>({});
   const [charteAccepted, setCharteAccepted] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<"stripe" | "paypal">("stripe");
   const [submitting, setSubmitting] = useState(false);
@@ -419,14 +421,6 @@ export default function CommissionsPage() {
                 })}
               </div>
 
-              <p className="text-xs font-semibold text-[#3A3631] mb-2 uppercase tracking-wide">Fichier par e-mail</p>
-              <label className={`flex items-center justify-between gap-3 px-4 py-3 border cursor-pointer transition-colors ${wantDigitalEmail ? "border-[#181614] bg-[#F2F0EA]" : "border-[#DEDAD1]"}`}>
-                <div>
-                  <span className="text-sm font-medium">Fichier haute résolution par e-mail</span>
-                  <span className="text-xs text-[#8C8780] ml-2">{fmt2(DIGITAL_EMAIL_PRICE)}</span>
-                </div>
-                <input type="checkbox" checked={wantDigitalEmail} onChange={e => setWantDigitalEmail(e.target.checked)} className="accent-[#B23A24] w-4 h-4" />
-              </label>
             </section>
           )}
 
@@ -460,13 +454,38 @@ export default function CommissionsPage() {
               )}
 
               <p className="text-xs font-semibold text-[#3A3631] mt-2 mb-2 uppercase tracking-wide">Scan par e-mail</p>
-              <label className={`flex items-center justify-between gap-3 px-4 py-3 border cursor-pointer transition-colors ${wantTradiEmail ? "border-[#181614] bg-[#F2F0EA]" : "border-[#DEDAD1]"}`}>
-                <div>
-                  <span className="text-sm font-medium">Scan haute résolution par e-mail</span>
-                  <span className="text-xs text-[#8C8780] ml-2">A5 3€ · A4 6€ · A3 12€ · A2 25€ · A1 40€</span>
-                </div>
-                <input type="checkbox" checked={wantTradiEmail} onChange={e => setWantTradiEmail(e.target.checked)} className="accent-[#B23A24] w-4 h-4" />
-              </label>
+              {isLesDeux ? (
+                <>
+                  <p className="text-xs text-[#8C8780] mb-2">Format de la feuille originale scanné et envoyé par e-mail.</p>
+                  <div className="flex flex-col gap-2">
+                    {(["A5", "A4", "A3", "A2", "A1"] as const).map(s => {
+                      const scanPrice = s === "A5" ? 3 : s === "A4" ? 6 : s === "A3" ? 12 : s === "A2" ? 25 : 40;
+                      const qty = (lesDuexScanQtys as Record<string, number>)[s] || 0;
+                      return (
+                        <div key={s} className={`flex items-center justify-between gap-3 px-4 py-3 border transition-colors ${qty > 0 ? "border-[#181614] bg-[#F2F0EA]" : "border-[#DEDAD1]"}`}>
+                          <div>
+                            <span className="text-sm font-medium">Scan {s}</span>
+                            <span className="text-xs text-[#8C8780] ml-2">+{scanPrice}€</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <button type="button" onClick={() => setLesDuexScanQtys((p: Record<string, number>) => ({ ...p, [s]: Math.max(0, (p[s] || 0) - 1) }))} className="w-7 h-7 border border-[#DEDAD1] flex items-center justify-center hover:border-[#181614] text-sm">−</button>
+                            <span className="font-mono text-sm w-4 text-center">{qty}</span>
+                            <button type="button" onClick={() => setLesDuexScanQtys((p: Record<string, number>) => ({ ...p, [s]: (p[s] || 0) + 1 }))} className="w-7 h-7 border border-[#DEDAD1] flex items-center justify-center hover:border-[#181614] text-sm">+</button>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </>
+              ) : (
+                <label className={`flex items-center justify-between gap-3 px-4 py-3 border cursor-pointer transition-colors ${wantTradiEmail ? "border-[#181614] bg-[#F2F0EA]" : "border-[#DEDAD1]"}`}>
+                  <div>
+                    <span className="text-sm font-medium">Scan haute résolution par e-mail</span>
+                    <span className="text-xs text-[#8C8780] ml-2">A5 3€ · A4 6€ · A3 12€ · A2 25€ · A1 40€</span>
+                  </div>
+                  <input type="checkbox" checked={wantTradiEmail} onChange={e => setWantTradiEmail(e.target.checked)} className="accent-[#B23A24] w-4 h-4" />
+                </label>
+              )}
             </section>
           )}
 
