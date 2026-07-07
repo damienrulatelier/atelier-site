@@ -452,7 +452,6 @@ export default function ProductForm({
                     <div key={i} className="relative">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img src={img} alt="" className="w-20 h-20 object-cover border border-[#DEDAD1]" />
-                      <button type="button" onClick={() => { const returnTo = window.location.pathname + window.location.search; router.push(`/admin/rogner?image=${encodeURIComponent(img)}&returnTo=${encodeURIComponent(returnTo)}`); }} className="absolute bottom-0 left-0 w-full text-[9px] bg-[#181614] text-white py-0.5 text-center hover:bg-[#B23A24]">Rogner</button>
                       <button type="button" onClick={() => setValues(prev => ({ ...prev, imagesOriginal: (prev.imagesOriginal || []).filter((_, j) => j !== i) }))} className="absolute top-0 right-0 w-5 h-5 bg-[#B23A24] text-white text-xs flex items-center justify-center">×</button>
                     </div>
                   ))}
@@ -469,7 +468,6 @@ export default function ProductForm({
                     <div key={i} className="relative">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img src={img} alt="" className="w-20 h-20 object-cover border border-[#DEDAD1]" />
-                      <button type="button" onClick={() => { const returnTo = window.location.pathname + window.location.search; router.push(`/admin/rogner?image=${encodeURIComponent(img)}&returnTo=${encodeURIComponent(returnTo)}`); }} className="absolute bottom-0 left-0 w-full text-[9px] bg-[#181614] text-white py-0.5 text-center hover:bg-[#B23A24]">Rogner</button>
                       <button type="button" onClick={() => set("images", values.images.filter((_, j) => j !== i))} className="absolute top-0 right-0 w-5 h-5 bg-[#B23A24] text-white text-xs flex items-center justify-center">×</button>
                     </div>
                   ))}
@@ -487,16 +485,6 @@ export default function ProductForm({
                   <div key={i} className="relative group">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src={img} alt="" className="w-20 h-20 object-cover border border-[#DEDAD1]" />
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const returnTo = window.location.pathname + window.location.search;
-                        router.push(`/admin/rogner?image=${encodeURIComponent(img)}&returnTo=${encodeURIComponent(returnTo)}`);
-                      }}
-                      className="absolute bottom-0 left-0 w-full text-[9px] bg-[#181614] text-white py-0.5 text-center hover:bg-[#B23A24]"
-                    >
-                      Rogner
-                    </button>
                     <button type="button" onClick={() => set("images", values.images.filter((_, j) => j !== i))} className="absolute top-0 right-0 w-5 h-5 bg-[#B23A24] text-white text-xs flex items-center justify-center">×</button>
                   </div>
                 ))}
