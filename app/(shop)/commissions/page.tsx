@@ -459,7 +459,7 @@ export default function CommissionsPage() {
               <label className={`flex items-center justify-between gap-3 px-4 py-3 border cursor-pointer transition-colors ${wantTradiEmail ? "border-[#181614] bg-[#F2F0EA]" : "border-[#DEDAD1]"}`}>
                 <div>
                   <span className="text-sm font-medium">Scan haute résolution par e-mail</span>
-                  <span className="text-xs text-[#8C8780] ml-2">A5 3€ · A4 6€ · A3 12€ · A2 25€</span>
+                  <span className="text-xs text-[#8C8780] ml-2">A5 3€ · A4 6€ · A3 12€ · A2 25€ · A1 40€</span>
                 </div>
                 <input type="checkbox" checked={wantTradiEmail} onChange={e => setWantTradiEmail(e.target.checked)} className="accent-[#B23A24] w-4 h-4" />
               </label>
