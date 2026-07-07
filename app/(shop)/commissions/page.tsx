@@ -83,6 +83,12 @@ const SCAN_SUPPLEMENT: Record<string, number> = {
   A5: 2, A4: 4, A3: 10, A2: 20, A1: 35,
 };
 
+const TRADI_EMAIL_PRICES: Record<PrintSizeKey, number> = {
+  A5: 3, A4: 6, A3: 12, A2: 25,
+};
+
+const DIGITAL_EMAIL_PRICE = 3;
+
 function fmt2(n: number) {
   return n.toFixed(2).replace(".", ",") + " €";
 }
@@ -421,7 +427,7 @@ export default function CommissionsPage() {
                     <div key={s} className={`flex items-center justify-between gap-3 px-4 py-3 border transition-colors ${qty > 0 ? "border-[#181614] bg-[#F2F0EA]" : "border-[#DEDAD1]"}`}>
                       <div>
                         <span className="text-sm font-medium">Email {s}</span>
-                        <span className="text-xs text-[#8C8780] ml-2">{fmt2(price + scan)}{scan > 0 ? ` (dont +${scan}€ scan)` : ""}</span>
+                        <span className="text-xs text-[#8C8780] ml-2">{fmt2(DIGITAL_EMAIL_PRICE)}</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <button type="button" onClick={() => setDigitalEmailQtys((p: Partial<Record<string, number>>) => ({ ...p, [s]: Math.max(0, (p[s] || 0) - 1) }))} className="w-7 h-7 border border-[#DEDAD1] flex items-center justify-center hover:border-[#181614] text-sm">−</button>
@@ -465,14 +471,12 @@ export default function CommissionsPage() {
               <div className="flex flex-col gap-2">
                 {PRINT_SIZES.map(s => {
                   const emailQty = tradiEmailQtys[s] || 0;
-                  const baseP = (category === "reference" || category === "imagination") ? (PRICES[category]?.[s as SizeKey]?.[color] ?? 0) : 0;
-                  const discount = s === "A5" ? 5 : s === "A4" ? 6 : s === "A3" ? 8 : 12;
-                  const emailPrice = baseP > 0 ? Math.max(baseP - discount, 0) : 0;
+                  const emailPrice = TRADI_EMAIL_PRICES[s];
                   return (
                     <div key={s} className={`flex items-center justify-between gap-3 px-4 py-3 border transition-colors ${emailQty > 0 ? "border-[#181614] bg-[#F2F0EA]" : "border-[#DEDAD1]"}`}>
                       <div>
                         <span className="text-sm font-medium">Scan {s}</span>
-                        <span className="text-xs text-[#8C8780] ml-2">{emailPrice > 0 ? fmt2(emailPrice) : ""}</span>
+                        <span className="text-xs text-[#8C8780] ml-2">{fmt2(emailPrice)}</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <button type="button" onClick={() => setTradiEmailQtys(p => ({ ...p, [s]: Math.max(0, (p[s] || 0) - 1) }))} className="w-7 h-7 border border-[#DEDAD1] flex items-center justify-center hover:border-[#181614] text-sm">−</button>
