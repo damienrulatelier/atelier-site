@@ -294,10 +294,62 @@ export default function CommissionsPage() {
             </div>
           </section>
 
-          {/* 2. Formats — compteurs quantité avec prix */}
+          {/* 2. Médium */}
+          <section>
+            <label className={labelCls}>{hasDevis ? "2" : "2"} — Médium</label>
+            <div className="flex flex-col gap-2">
+              {MEDIUMS.map(m => (
+                <label key={m.key} className={`${rowCls} ${medium === m.key ? "border-[#181614] bg-[#F2F0EA]" : "border-[#DEDAD1]"}`}>
+                  <input type="radio" name="medium" checked={medium === m.key} onChange={() => setMedium(m.key)} className="accent-[#B23A24]" />
+                  <div>
+                    <span className="text-sm font-medium">{m.label}</span>
+                    <span className="text-xs text-[#8C8780] ml-2">{m.sub}</span>
+                  </div>
+                </label>
+              ))}
+            </div>
+
+            {/* Charte digital */}
+            {isDigital && (
+              <div className="mt-3 p-4 border border-[#181614] bg-[#F2F0EA]">
+                <p className="text-xs text-[#3A3631] leading-relaxed mb-3">
+                  <strong>Charte d&rsquo;utilisation — original numérique :</strong> le fichier livré est signé digitalement et destiné à un usage personnel ou commercial selon accord. Je m&rsquo;engage à ne pas réutiliser, revendre ou diffuser l&rsquo;œuvre sans ton accord explicite. Tu es propriétaire de ce fichier.
+                </p>
+                <label className="flex items-start gap-2 cursor-pointer">
+                  <input type="checkbox" checked={charteAccepted} onChange={e => setCharteAccepted(e.target.checked)} className="mt-0.5 accent-[#B23A24]" />
+                  <span className="text-xs text-[#3A3631]">J&rsquo;accepte la charte d&rsquo;utilisation de l&rsquo;original numérique</span>
+                </label>
+              </div>
+            )}
+          </section>
+
+          {/* 3. Rendu */}
+          {!hasDevis && (
+            <section>
+              <label className={labelCls}>3 — Rendu</label>
+              <div className="flex gap-3">
+                <label className={`flex-1 flex items-center gap-3 p-4 border cursor-pointer transition-colors ${color === "nb" ? "border-[#181614] bg-[#F2F0EA]" : "border-[#DEDAD1]"}`}>
+                  <input type="radio" name="color" checked={color === "nb"} onChange={() => setColor("nb")} className="accent-[#B23A24]" />
+                  <div>
+                    <div className="text-sm font-semibold">Noir & blanc</div>
+                    <div className="text-xs text-[#8C8780]">Encre, crayon, lavis</div>
+                  </div>
+                </label>
+                <label className={`flex-1 flex items-center gap-3 p-4 border cursor-pointer transition-colors ${color === "color" ? "border-[#181614] bg-[#F2F0EA]" : "border-[#DEDAD1]"}`}>
+                  <input type="radio" name="color" checked={color === "color"} onChange={() => setColor("color")} className="accent-[#B23A24]" />
+                  <div>
+                    <div className="text-sm font-semibold">Couleur</div>
+                    <div className="text-xs text-[#8C8780]">{size === "A5" ? "Aquarelle" : "Aquarelle et/ou acrylique"}</div>
+                  </div>
+                </label>
+              </div>
+            </section>
+          )}
+
+          {/* 4. Formats — compteurs quantité avec prix */}
           {!hasDevis && !isDigital && (
             <section>
-              <label className={labelCls}>2 — Formats et quantités</label>
+              <label className={labelCls}>4 — Formats et quantités</label>
               <p className="text-xs text-[#8C8780] mb-3">Tu peux commander plusieurs formats et plusieurs exemplaires.</p>
               <div className="flex flex-col gap-2">
                 {(["A5", "A4", "A3", "A2"] as SizeKey[]).map(s => {
@@ -325,58 +377,6 @@ export default function CommissionsPage() {
               </div>
             </section>
           )}
-
-          {/* 3. Rendu */}
-          {!hasDevis && (
-            <section>
-              <label className={labelCls}>3 — Rendu</label>
-              <div className="flex gap-3">
-                <label className={`flex-1 flex items-center gap-3 p-4 border cursor-pointer transition-colors ${color === "nb" ? "border-[#181614] bg-[#F2F0EA]" : "border-[#DEDAD1]"}`}>
-                  <input type="radio" name="color" checked={color === "nb"} onChange={() => setColor("nb")} className="accent-[#B23A24]" />
-                  <div>
-                    <div className="text-sm font-semibold">Noir & blanc</div>
-                    <div className="text-xs text-[#8C8780]">Encre, crayon, lavis</div>
-                  </div>
-                </label>
-                <label className={`flex-1 flex items-center gap-3 p-4 border cursor-pointer transition-colors ${color === "color" ? "border-[#181614] bg-[#F2F0EA]" : "border-[#DEDAD1]"}`}>
-                  <input type="radio" name="color" checked={color === "color"} onChange={() => setColor("color")} className="accent-[#B23A24]" />
-                  <div>
-                    <div className="text-sm font-semibold">Couleur</div>
-                    <div className="text-xs text-[#8C8780]">{size === "A5" ? "Aquarelle" : "Aquarelle et/ou acrylique"}</div>
-                  </div>
-                </label>
-              </div>
-            </section>
-          )}
-
-          {/* 4. Médium */}
-          <section>
-            <label className={labelCls}>{hasDevis ? "2" : "4"} — Médium</label>
-            <div className="flex flex-col gap-2">
-              {MEDIUMS.map(m => (
-                <label key={m.key} className={`${rowCls} ${medium === m.key ? "border-[#181614] bg-[#F2F0EA]" : "border-[#DEDAD1]"}`}>
-                  <input type="radio" name="medium" checked={medium === m.key} onChange={() => setMedium(m.key)} className="accent-[#B23A24]" />
-                  <div>
-                    <span className="text-sm font-medium">{m.label}</span>
-                    <span className="text-xs text-[#8C8780] ml-2">{m.sub}</span>
-                  </div>
-                </label>
-              ))}
-            </div>
-
-            {/* Charte digital */}
-            {isDigital && (
-              <div className="mt-3 p-4 border border-[#181614] bg-[#F2F0EA]">
-                <p className="text-xs text-[#3A3631] leading-relaxed mb-3">
-                  <strong>Charte d&rsquo;utilisation — original numérique :</strong> le fichier livré est signé digitalement et destiné à un usage personnel ou commercial selon accord. Je m&rsquo;engage à ne pas réutiliser, revendre ou diffuser l&rsquo;œuvre sans ton accord explicite. Tu es propriétaire de ce fichier.
-                </p>
-                <label className="flex items-start gap-2 cursor-pointer">
-                  <input type="checkbox" checked={charteAccepted} onChange={e => setCharteAccepted(e.target.checked)} className="mt-0.5 accent-[#B23A24]" />
-                  <span className="text-xs text-[#3A3631]">J&rsquo;accepte la charte d&rsquo;utilisation de l&rsquo;original numérique</span>
-                </label>
-              </div>
-            )}
-          </section>
 
           {/* Formats digitaux avec quantités — prints ET email indépendants */}
           {isDigital && !hasDevis && (
