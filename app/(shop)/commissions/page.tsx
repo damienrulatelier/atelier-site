@@ -109,6 +109,8 @@ export default function CommissionsPage() {
     const uploaded: string[] = [];
     for (const file of newFiles) {
       try {
+        // Petite pause pour s'assurer que le timestamp est unique
+        await new Promise(r => setTimeout(r, 1100));
         const sigRes = await fetch("/api/upload-signature", { method: "GET" });
         const sig = await sigRes.json();
         if (sig.cloudName) {
@@ -121,8 +123,9 @@ export default function CommissionsPage() {
           const res = await fetch(`https://api.cloudinary.com/v1_1/${sig.cloudName}/image/upload`, { method: "POST", body: fd });
           const data = await res.json();
           if (data.secure_url) uploaded.push(data.secure_url);
+          else console.error("Cloudinary error:", data);
         }
-      } catch { /* silencieux */ }
+      } catch (e) { console.error("Upload photo erreur:", e); }
     }
     setRefUrls(prev => [...prev, ...uploaded]);
     setUploadingRef(false);
