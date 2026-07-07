@@ -173,7 +173,7 @@ export default function CommissionsPage() {
   // Format principal pour l'acompte (le plus grand format commandé)
   const mainSize: SizeKey = (["A2", "A3", "A4", "A5"] as SizeKey[]).find(s => (sizeQtys[s] || 0) > 0) || size;
 
-  const digitalEmailPrice = color === "nb" ? DIGITAL_EMAIL_PRICE_NB : DIGITAL_EMAIL_PRICE_COLOR;
+  const digitalEmailPrice = category === "imagination" ? (color === "nb" ? 40 : 50) : (color === "nb" ? DIGITAL_EMAIL_PRICE_NB : DIGITAL_EMAIL_PRICE_COLOR);
   const hasLesDuexScan = isLesDeux && Object.values(lesDuexScanQtys).some(q => ((q as number) || 0) > 0);
   const digitalPrintDiscount = (wantDigitalEmail && !isLesDeux) || hasLesDuexScan ? 0.8 : 1;
   const digitalTotal = digitalCatKey
