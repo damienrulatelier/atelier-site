@@ -50,7 +50,11 @@ export default function HomePage() {
     if (hash) {
       setTimeout(() => {
         const el = document.querySelector(hash);
-        if (el) el.scrollIntoView({ behavior: "smooth" });
+        if (el) {
+          el.scrollIntoView({ behavior: "smooth" });
+          // Effacer le hash pour ne pas rescroller au prochain refresh
+          history.replaceState(null, "", window.location.pathname);
+        }
       }, 100);
     }
   }, [products]);
