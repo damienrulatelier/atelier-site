@@ -166,9 +166,7 @@ export default function PrintDetailPage() {
                     </div>
                   )}
                   <button onClick={() => activePhotos.length > 0 && setZoomOpen(true)} className="w-full bg-[#F2F0EA] border border-[#DEDAD1] relative overflow-hidden cursor-zoom-in block">
-                    {((!hasTabs && product.type === "original") || (hasTabs && photoTab === "original")) && (
-                      <span className="absolute top-4 left-4 font-mono text-[10px] px-2 py-0.5 z-10 border bg-[#B23A24] text-white border-[#B23A24]">ORIGINAL</span>
-                    )}
+
                     {activePhotos[activeImage] ? (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img src={activePhotos[activeImage]} alt={product.title} className="w-full h-auto block" />
