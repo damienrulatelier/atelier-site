@@ -48,7 +48,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   function addLine(input: Omit<CartLine, "lineId" | "qty">) {
     setLines((prev) => {
       if (!input.isDedicated) {
-        const existing = prev.find((l) => l.productId === input.productId && !l.isDedicated);
+        const existing = prev.find((l) => l.productId === input.productId && l.size === input.size && l.medium === input.medium && !l.isDedicated);
         if (existing) {
           return prev.map((l) => l.lineId === existing.lineId ? { ...l, qty: l.qty + 1 } : l);
         }
