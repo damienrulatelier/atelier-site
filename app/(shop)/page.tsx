@@ -57,7 +57,7 @@ export default function HomePage() {
     p.delivery?.print?.enabled &&
     p.type !== "bd"
   ) || [];
-  const originals = products?.filter((p) => p.type === "original" || p.delivery?.original?.enabled) || [];
+  const originals = products?.filter((p) => (p.type === "original" || p.delivery?.original?.enabled) && p.type !== "drop" && !p.temporaryUntil) || [];
   const bdItems = products?.filter((p) => p.type === "bd") || [];
   const featured = products ? products.find((p) => p.featured) || products[0] : undefined;
   return (
