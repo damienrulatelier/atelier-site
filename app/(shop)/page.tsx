@@ -197,7 +197,7 @@ export default function HomePage() {
               <p className="text-sm text-[#8C8780] mt-1">Disponibles pour une durée limitée — le temps du compte à rebours</p>
             </div>
             <div className="flex justify-center">
-              <div className="w-full max-w-md">
+              <div className="w-full max-w-lg">
                 <ProductGrid products={drops} context="drops" />
               </div>
             </div>

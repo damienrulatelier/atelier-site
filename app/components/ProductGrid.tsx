@@ -75,7 +75,7 @@ export default function ProductGrid({ products, context }: { products: Product[]
   const [zoomProduct, setZoomProduct] = useState<Product | null>(null);
   return (
     <>
-      <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-5 xl:gap-6">
+      <div className={context === "drops" ? "grid grid-cols-1 gap-4 md:gap-6" : "grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-5 xl:gap-6"}>
         {products.map((p) => {
           const isOriginal = p.type === "original";
           const baseHref = isOriginal ? `/originals/${p.id}` : `/prints/${p.id}`;
