@@ -110,7 +110,7 @@ export default function ProductGrid({ products, context }: { products: Product[]
                     : p.images;
                   return displayImages[0] ? (
                     <>
-                      <Image src={displayImages[0]} alt={p.title} width={600} height={800} sizes="(max-width: 768px) 50vw, (max-width: 1280px) 33vw, 25vw" className="w-full h-auto block transition-transform duration-500 group-hover:scale-105" loading="lazy" />
+                      <Image src={displayImages[0]} alt={p.title} width={600} height={800} sizes={context === "drops" ? "100vw" : "(max-width: 768px) 50vw, (max-width: 1280px) 33vw, 25vw"} className="w-full h-auto block transition-transform duration-500 group-hover:scale-105" loading="lazy" />
                       {context !== "drops" && <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); setZoomProduct(p); }} aria-label="Zoomer sur l'image" className="absolute bottom-3 right-3 w-8 h-8 bg-[#FAFAF8] border border-[#DEDAD1] flex items-center justify-center hover:border-[#181614] transition-colors z-10 text-sm">🔍</button>}
                     </>
                   ) : (
