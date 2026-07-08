@@ -190,7 +190,7 @@ export default function HomePage() {
       </section>
       {/* Drops */}
       {drops.length > 0 && (
-        <section id="drops" className="py-22 border-b border-[#DEDAD1] bg-[#181614]">
+        <section id="drops" className="py-22 border-b border-[#DEDAD1] bg-[#2A2420]">
           <div className="max-w-6xl mx-auto px-8">
             <div className="text-center mb-12 border-b border-[#B23A24] pb-6">
               <h2 className="font-serif text-[42px] text-[#FAFAF8]">Drops</h2>
