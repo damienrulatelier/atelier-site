@@ -100,7 +100,7 @@ export default function CommandePage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          lines: lines.map((l) => ({ productId: l.productId, title: l.title, price: l.price, qty: l.qty, dedication: l.dedication })),
+          lines: lines.map((l) => ({ productId: l.productId, title: l.title, price: l.price, qty: l.qty, dedication: l.dedication, size: l.size })),
           shippingLabel: freeShipping ? `${shippingOpt.label} (offerte)` : shippingOpt.label,
           shippingPrice: shippingPrice,
           email: form.email,
