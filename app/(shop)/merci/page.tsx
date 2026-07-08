@@ -79,12 +79,22 @@ async function sendOrderConfirmationEmails(
   customerEmail?: string | null,
   shippingAddress?: Record<string, string | undefined>
 ) {
-  if (!metadata?.orderSummary) {
+  if (!metadata?.orderSummary && !metadata?.orderId) {
     console.log("[Merci] Pas d'orderSummary dans metadata");
     return;
   }
   try {
-    const lines = JSON.parse(metadata.orderSummary);
+    let lines;
+    if (metadata.orderSummary) {
+      lines = JSON.parse(metadata.orderSummary);
+    } else if (metadata.orderId && process.env.SUPABASE_URL) {
+      const { createClient } = await import("@supabase/supabase-js");
+      const sb = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_SERVICE_KEY!);
+      const { data } = await sb.from("orders_pending").select("data").eq("id", metadata.orderId).single();
+      lines = data?.data?.lines || [];
+    } else {
+      return;
+    }
     console.log("[Merci] Appel direct sendEmail, email:", customerEmail);
     const { Resend } = await import("resend");
     const resend = new Resend(process.env.RESEND_API_KEY);

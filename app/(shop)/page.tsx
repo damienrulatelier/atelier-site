@@ -192,14 +192,15 @@ export default function HomePage() {
       {drops.length > 0 && (
         <section id="drops" className="py-22 border-b border-[#DEDAD1] bg-[#181614]">
           <div className="max-w-6xl mx-auto px-8">
-            <div className="flex justify-between items-baseline mb-12 border-b border-[#B23A24] pb-6">
-              <div>
-                <h2 className="font-serif text-[34px] text-[#FAFAF8]">Drops</h2>
-                <p className="text-sm text-[#8C8780] mt-1">Disponibles pour une durée limitée — le temps du compte à rebours</p>
-              </div>
-              <span className="font-mono text-sm text-[#B23A24]">{drops.length} pièce{drops.length !== 1 ? "s" : ""}</span>
+            <div className="text-center mb-12 border-b border-[#B23A24] pb-6">
+              <h2 className="font-serif text-[42px] text-[#FAFAF8]">Drops</h2>
+              <p className="text-sm text-[#8C8780] mt-1">Disponibles pour une durée limitée — le temps du compte à rebours</p>
             </div>
-            <ProductGrid products={drops} context="drops" />
+            <div className="flex justify-center">
+              <div className="w-full max-w-md">
+                <ProductGrid products={drops} context="drops" />
+              </div>
+            </div>
           </div>
         </section>
       )}

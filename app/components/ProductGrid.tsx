@@ -80,7 +80,7 @@ export default function ProductGrid({ products, context }: { products: Product[]
           const isOriginal = p.type === "original";
           const baseHref = isOriginal ? `/originals/${p.id}` : `/prints/${p.id}`;
           const href = context === "originals" ? `${baseHref}?from=originals` : context === "drops" ? `${baseHref}?from=originals` : baseHref;
-          const cardClass = (isOriginal && context === "originals")
+          const cardClass = ((isOriginal || p.delivery?.original?.enabled) && context === "originals")
             ? "bg-[#FAFAF8] border border-[#B23A24] flex flex-col group"
             : "bg-[#FAFAF8] border border-[#DEDAD1] flex flex-col group";
           const remaining = p.editionTotal > 0 ? Math.max(p.editionTotal - p.editionSold, 0) : null;

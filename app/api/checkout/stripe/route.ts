@@ -24,6 +24,20 @@ export async function POST(req: NextRequest) {
   }
   const origin = req.headers.get("origin") || new URL(req.url).origin;
   try {
+    // Sauvegarder la commande dans Supabase pour la récupérer après paiement
+    const orderId = `ord_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`;
+    if (process.env.SUPABASE_URL) {
+      try {
+        const { createClient } = await import("@supabase/supabase-js");
+        const sb = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_SERVICE_KEY!);
+        await sb.from("orders_pending").upsert({
+          id: orderId,
+          data: { lines, shippingLabel, shippingPrice },
+          created_at: new Date().toISOString(),
+        });
+      } catch (e) { console.error("[Stripe] Supabase save error:", e); }
+    }
+
     const line_items: Stripe.Checkout.SessionCreateParams.LineItem[] = lines.map((l) => ({
       price_data: {
         currency: "eur",
@@ -45,6 +59,9 @@ export async function POST(req: NextRequest) {
         quantity: 1,
       });
     }
+    const orderSummary = JSON.stringify(
+      lines.map((l) => ({ title: l.title, price: l.price, qty: l.qty, dedication: l.dedication || "", size: l.size || "" }))
+    );
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
       payment_method_types: ["card"],
@@ -57,15 +74,8 @@ export async function POST(req: NextRequest) {
         items: JSON.stringify(
           lines.filter((l) => l.productId).map((l) => ({ id: l.productId, qty: l.qty }))
         ),
-        orderSummary: JSON.stringify(
-          lines.map((l) => ({
-            title: l.title,
-            price: l.price,
-            qty: l.qty,
-            dedication: l.dedication || "",
-            size: l.size || "",
-          }))
-        ),
+        orderSummary: orderSummary.length <= 490 ? orderSummary : "",
+        orderId,
         shippingLabel,
         shippingPrice: String(shippingPrice),
         sessionToken,
