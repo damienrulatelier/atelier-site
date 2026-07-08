@@ -47,12 +47,6 @@ export function CartProvider({ children }: { children: ReactNode }) {
   }, [lines, hydrated]);
   function addLine(input: Omit<CartLine, "lineId" | "qty">) {
     setLines((prev) => {
-      if (!input.isDedicated) {
-        const existing = prev.find((l) => l.productId === input.productId && l.size === input.size && l.medium === input.medium && !l.isDedicated);
-        if (existing) {
-          return prev.map((l) => l.lineId === existing.lineId ? { ...l, qty: l.qty + 1 } : l);
-        }
-      }
       const newLine: CartLine = {
         ...input,
         lineId: "l_" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
