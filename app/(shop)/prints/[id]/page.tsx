@@ -66,7 +66,7 @@ export default function PrintDetailPage() {
   const isDrop = !!(product?.type === "drop" || product?.temporaryUntil);
   const hasOrigPhotos = (product?.imagesOriginal || []).length > 0;
   const hasPrintPhotos = (product?.imagesPrint || []).length > 0 || (product?.images || []).length > 0;
-  const hasTabs = hasOrigPhotos && hasPrintPhotos && (isDrop || (product?.imagesPrint || []).length > 0);
+  const wallHasTabs = hasOrigPhotos && hasPrintPhotos && (isDrop || (product?.imagesPrint || []).length > 0);
   const [frameColor, setFrameColor] = useState("#181614");
   useEffect(() => {
     fetch("/api/products")
@@ -304,7 +304,7 @@ export default function PrintDetailPage() {
               <div className="relative w-[46%] p-2 shadow-[0_10px_30px_rgba(24,22,20,0.35)]" style={{ backgroundColor: frameColor }}>
                 <div className="w-full border-[3px]" style={{ borderColor: frameColor }}>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={hasTabs && photoTab === "original" && product.imagesOriginal?.[0] ? product.imagesOriginal[0] : product.images[0]} alt={product.title} className="w-full h-auto block" />
+                  <img src={wallHasTabs && photoTab === "original" && product.imagesOriginal?.[0] ? product.imagesOriginal[0] : product.images[0]} alt={product.title} className="w-full h-auto block" />
                 </div>
               </div>
             </div>
