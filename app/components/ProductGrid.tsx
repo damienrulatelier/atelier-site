@@ -102,10 +102,12 @@ export default function ProductGrid({ products, context }: { products: Product[]
                   </span>
                 )}
                 {(() => {
-                  // Photo principale selon contexte
-                  const displayImages = (context === "originals" && p.imagesOriginal?.length)
+                  // Photo selon section : original/drop → imagesOriginal, print → images
+                  const displayImages = context === "originals" && p.imagesOriginal?.length
                     ? p.imagesOriginal
-                    : p.images; // drops et prints : photo print
+                    : context === "drops" && p.imagesOriginal?.length
+                    ? p.imagesOriginal
+                    : p.images;
                   return displayImages[0] ? (
                     <>
                       <Image src={displayImages[0]} alt={p.title} width={600} height={800} sizes="(max-width: 768px) 50vw, (max-width: 1280px) 33vw, 25vw" className="w-full h-auto block transition-transform duration-500 group-hover:scale-105" loading="lazy" />
