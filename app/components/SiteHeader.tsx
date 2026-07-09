@@ -9,21 +9,7 @@ export default function SiteHeader() {
   const [atelierOpen, setAtelierOpen] = useState(false);
   const [hasActiveDrop, setHasActiveDrop] = useState(false);
   const atelierRef = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    // Fetch en arrière-plan sans bloquer l'hydratation
-    setTimeout(() => {
-      fetch("/api/products")
-        .then(r => r.json())
-        .then(data => {
-          const now = Date.now();
-          const active = (data.products || []).some((p: { temporaryUntil?: string; active?: boolean; type?: string }) =>
-            p.active && (p.type === "drop" || (p.temporaryUntil && new Date(p.temporaryUntil).getTime() > now))
-          );
-          setHasActiveDrop(active);
-        })
-        .catch(() => {});
-    }, 2000);
-  }, []);
+
   useEffect(() => {
     function handleClick(e: Event) {
       if (atelierRef.current && !atelierRef.current.contains(e.target as Node)) {
