@@ -47,8 +47,8 @@ export default function Client({ product, similar }: { product: Product | null; 
           <div>
             {hasTabs && (
               <div className="flex mb-3 border border-[#DEDAD1]">
-                <button onClick={() => { setTab("original"); setActiveImg(0); }} className={`flex-1 py-2 text-xs uppercase tracking-wide font-semibold ${tab === "original" ? "bg-[#B23A24] text-white" : "text-[#3A3631]"}`}>✦ Œuvre originale</button>
-                <button onClick={() => { setTab("print"); setActiveImg(0); }} className={`flex-1 py-2 text-xs uppercase tracking-wide font-semibold ${tab === "print" ? "bg-[#181614] text-white" : "text-[#3A3631]"}`}>Print</button>
+                <a href="#" onClick={(e) => { e.preventDefault(); setTab("original"); setActiveImg(0); }} className={`flex-1 py-2 text-xs uppercase tracking-wide font-semibold text-center block ${tab === "original" ? "bg-[#B23A24] text-white" : "text-[#3A3631]"}`}>✦ Œuvre originale</a>
+                <a href="#" onClick={(e) => { e.preventDefault(); setTab("print"); setActiveImg(0); }} className={`flex-1 py-2 text-xs uppercase tracking-wide font-semibold text-center block ${tab === "print" ? "bg-[#181614] text-white" : "text-[#3A3631]"}`}>Print</a>
               </div>
             )}
             <div onClick={() => photos.length > 0 && setZoomOpen(true)} className="w-full bg-[#F2F0EA] border border-[#DEDAD1] overflow-hidden cursor-pointer">
@@ -72,7 +72,7 @@ export default function Client({ product, similar }: { product: Product | null; 
             {product.description && <p className="text-[15.5px] text-[#3A3631] leading-relaxed mb-8 whitespace-pre-line">{product.description}</p>}
             {soldOut
               ? <div className="w-full px-8 py-4 text-sm uppercase tracking-wide font-semibold bg-[#3A3631] text-white text-center opacity-70">Édition épuisée</div>
-              : <button onClick={() => setAddOpen(true)} className="w-full px-8 py-4 text-sm uppercase tracking-wide font-semibold bg-[#181614] text-white hover:bg-[#B23A24] transition-colors">Choisir un format et ajouter au panier</button>
+              : <a href="#" onClick={(e) => { e.preventDefault(); setAddOpen(true); }} className="w-full px-8 py-4 text-sm uppercase tracking-wide font-semibold bg-[#181614] text-white hover:bg-[#B23A24] transition-colors block text-center">Choisir un format et ajouter au panier</a>
             }
             {product.allowDedication && <p className="text-xs text-[#8C8780] mt-4">✎ Une dédicace personnalisée pourra être ajoutée au moment de la commande.</p>}
             <ProductReviews productTitle={product.title} />
