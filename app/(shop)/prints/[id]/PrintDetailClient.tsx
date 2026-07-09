@@ -62,7 +62,10 @@ export default function PrintDetailClient({ productId, initialProduct, allProduc
   const [wallPreviewOpen, setWallPreviewOpen] = useState(false);
   const [activeImage, setActiveImage] = useState(0);
   const [photoTab, setPhotoTab] = useState<"original" | "print">("original");
-  const fromOriginals = typeof window !== "undefined" && new URLSearchParams(window.location.search).get("from") === "originals";
+  const [fromOriginals, setFromOriginals] = useState(false);
+  useEffect(() => {
+    setFromOriginals(new URLSearchParams(window.location.search).get("from") === "originals");
+  }, []);
   const isDrop = !!(product?.type === "drop" || product?.temporaryUntil);
   const hasOrigPhotos = (product?.imagesOriginal || []).length > 0;
   const hasPrintPhotos = (product?.imagesPrint || []).length > 0 || (product?.images || []).length > 0;
