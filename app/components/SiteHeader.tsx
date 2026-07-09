@@ -29,7 +29,11 @@ export default function SiteHeader() {
       }
     }
     document.addEventListener("mousedown", handleClick);
-    return () => document.removeEventListener("mousedown", handleClick);
+    document.addEventListener("touchstart", handleClick);
+    return () => {
+      document.removeEventListener("mousedown", handleClick);
+      document.removeEventListener("touchstart", handleClick);
+    };
   }, []);
   function handleCommissionsClick(e: React.MouseEvent) {
     if (pathname === "/commissions") {
