@@ -25,6 +25,8 @@ function Countdown({ until }: { until: string }) {
 }
 
 export default function Client({ product, all }: { product: Product | null; all: Product[] }) {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(true); }, []);
   const [addOpen, setAddOpen] = useState(false);
   const [zoomOpen, setZoomOpen] = useState(false);
   const [wallOpen, setWallOpen] = useState(false);
@@ -86,6 +88,23 @@ export default function Client({ product, all }: { product: Product | null; all:
     .map(p=>({p,s:(p.medium===product.medium?3:0)+(p.type===product.type?2:0)+(p.editionSold||0)}))
     .sort((a,b)=>b.s-a.s).slice(0,3).map(x=>x.p);
 
+  if (!mounted) return (
+    <main suppressHydrationWarning>
+      <div className="max-w-6xl mx-auto px-6 md:px-8 py-8">
+        {product && (
+          <div className="grid md:grid-cols-2 gap-10 md:gap-14">
+            <div>
+              {product.images[0] && <img src={product.images[0]} alt={product.title} className="w-full h-auto block"/>}
+            </div>
+            <div>
+              <h1 className="font-serif text-[32px] md:text-[38px] leading-tight text-[#181614] mb-2">{product.title}</h1>
+              {product.description && <p className="text-[15.5px] text-[#3A3631] leading-relaxed mb-8">{product.description}</p>}
+            </div>
+          </div>
+        )}
+      </div>
+    </main>
+  );
   return (
     <main>
       <div className="max-w-6xl mx-auto px-6 md:px-8 py-8">
