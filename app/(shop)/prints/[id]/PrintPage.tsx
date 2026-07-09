@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import type { Product } from "@/lib/products-types";
 import ImageLightbox from "../../../components/ImageLightbox";
@@ -24,6 +24,12 @@ function Countdown({ until }: { until: string }) {
   return <div className="inline-flex items-center gap-2 bg-[#181614] text-white px-3 py-2 text-xs font-mono mb-4">⏳ Disponible encore : <strong>{t}</strong></div>;
 }
 
+function tap(fn: () => void) {
+  return {
+    onClick: fn,
+    onTouchEnd: (e: React.TouchEvent) => { e.preventDefault(); fn(); },
+  };
+}
 export default function PrintPage({ product, allProducts }: { product: Product | null; allProducts: Product[] }) {
   const [zoomOpen, setZoomOpen] = useState(false);
   const [addOpen, setAddOpen] = useState(false);
@@ -99,11 +105,11 @@ export default function PrintPage({ product, allProducts }: { product: Product |
           <div>
             {hasTabs && (
               <div className="flex mb-3 border border-[#DEDAD1]">
-                <button type="button" style={{touchAction:"manipulation",cursor:"pointer"}} onClick={()=>{setTab("original");setActiveImg(0);}} className={`flex-1 py-2 text-xs uppercase tracking-wide font-semibold transition-colors ${tab==="original"?"bg-[#B23A24] text-white":"text-[#3A3631] hover:bg-[#F2F0EA]"}`}>✦ Œuvre originale</button>
-                <button type="button" style={{touchAction:"manipulation",cursor:"pointer"}} onClick={()=>{setTab("print");setActiveImg(0);}} className={`flex-1 py-2 text-xs uppercase tracking-wide font-semibold transition-colors ${tab==="print"?"bg-[#181614] text-white":"text-[#3A3631] hover:bg-[#F2F0EA]"}`}>Print</button>
+                <button type="button" style={{touchAction:"manipulation",cursor:"pointer"}} {...tap(()=>{setTab("original");setActiveImg(0);})} className={`flex-1 py-2 text-xs uppercase tracking-wide font-semibold transition-colors ${tab==="original"?"bg-[#B23A24] text-white":"text-[#3A3631] hover:bg-[#F2F0EA]"}`}>✦ Œuvre originale</button>
+                <button type="button" style={{touchAction:"manipulation",cursor:"pointer"}} {...tap(()=>{setTab("print");setActiveImg(0);})} className={`flex-1 py-2 text-xs uppercase tracking-wide font-semibold transition-colors ${tab==="print"?"bg-[#181614] text-white":"text-[#3A3631] hover:bg-[#F2F0EA]"}`}>Print</button>
               </div>
             )}
-            <button onClick={()=>photos.length>0&&setZoomOpen(true)} style={{touchAction:"manipulation",cursor:"pointer"}} className="w-full bg-[#F2F0EA] border border-[#DEDAD1] overflow-hidden cursor-zoom-in block">
+            <button {...tap(()=>photos.length>0&&setZoomOpen(true))} style={{touchAction:"manipulation",cursor:"pointer"}} className="w-full bg-[#F2F0EA] border border-[#DEDAD1] overflow-hidden cursor-zoom-in block">
               {photos[activeImg] ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={optimizeImage(photos[activeImg],1200)} alt={product.title} className="w-full h-auto block" />
@@ -112,7 +118,7 @@ export default function PrintPage({ product, allProducts }: { product: Product |
             {photos.length>1 && (
               <div className="flex gap-2 mt-3">
                 {photos.map((img,i)=>(
-                  <button key={img} onClick={()=>setActiveImg(i)} className={`w-16 h-16 border overflow-hidden flex-shrink-0 ${i===activeImg?"border-[#181614]":"border-[#DEDAD1]"}`}>
+                  <button key={img} {...tap(()=>setActiveImg(i))} className={`w-16 h-16 border overflow-hidden flex-shrink-0 ${i===activeImg?"border-[#181614]":"border-[#DEDAD1]"}`}>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src={optimizeImage(img,200)} alt="" className="w-full h-full object-cover" />
                   </button>
@@ -120,7 +126,7 @@ export default function PrintPage({ product, allProducts }: { product: Product |
               </div>
             )}
             {product.wallPreviewEnabled && product.images.length>0 && (
-              <button onClick={()=>setWallOpen(true)} className="mt-4 text-xs uppercase tracking-wide font-medium text-[#3A3631] border border-[#DEDAD1] px-4 py-2.5 hover:border-[#181614] transition-colors inline-flex items-center gap-2">
+              <button {...tap(()=>setWallOpen(true))} className="mt-4 text-xs uppercase tracking-wide font-medium text-[#3A3631] border border-[#DEDAD1] px-4 py-2.5 hover:border-[#181614] transition-colors inline-flex items-center gap-2">
                 <span>🖼️</span> Voir en situation sur un mur
               </button>
             )}
@@ -140,7 +146,7 @@ export default function PrintPage({ product, allProducts }: { product: Product |
             {soldOut ? (
               <div className="w-full md:w-auto px-8 py-4 text-sm uppercase tracking-wide font-semibold bg-[#3A3631] text-white text-center cursor-not-allowed opacity-70">Édition épuisée</div>
             ) : (
-              <button onClick={()=>setAddOpen(true)} style={{touchAction:"manipulation",cursor:"pointer"}} className="w-full md:w-auto px-8 py-4 text-sm uppercase tracking-wide font-semibold bg-[#181614] text-white hover:bg-[#B23A24] transition-colors">
+              <button {...tap(()=>setAddOpen(true))} style={{touchAction:"manipulation",cursor:"pointer"}} className="w-full md:w-auto px-8 py-4 text-sm uppercase tracking-wide font-semibold bg-[#181614] text-white hover:bg-[#B23A24] transition-colors">
                 Choisir un format et ajouter au panier
               </button>
             )}
