@@ -24,7 +24,7 @@ function Countdown({ until }: { until: string }) {
 
 const btnStyle = { WebkitTapHighlightColor: "transparent", touchAction: "manipulation" as const, userSelect: "none" as const };
 
-export default function Client({ product, all }: { product: Product | null; all: Product[] }) {
+export default function Client({ product, similar }: { product: Product | null; similar: Product[] }) {
   const [addOpen, setAddOpen] = useState(false);
   const [zoomOpen, setZoomOpen] = useState(false);
   const [wallOpen, setWallOpen] = useState(false);
@@ -83,9 +83,7 @@ export default function Client({ product, all }: { product: Product | null; all:
     return prices.length ? Math.min(...prices.filter(v=>v>0)) : (p.price||0);
   }
 
-  const similar = all.filter(p=>p.id!==product.id&&p.active)
-    .map(p=>({p,s:(p.medium===product.medium?3:0)+(p.type===product.type?2:0)+(p.editionSold||0)}))
-    .sort((a,b)=>b.s-a.s).slice(0,3).map(x=>x.p);
+
 
   return (
     <main suppressHydrationWarning>

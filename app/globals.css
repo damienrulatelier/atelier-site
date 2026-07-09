@@ -1,5 +1,4 @@
 @import "tailwindcss";
-
 :root {
   --paper: #FAFAF8;
   --paper-dim: #F2F0EA;
@@ -10,7 +9,6 @@
   --accent: #B23A24;
   --accent-soft: #E8D9D3;
 }
-
 @theme inline {
   --color-paper: var(--paper);
   --color-paper-dim: var(--paper-dim);
@@ -21,30 +19,29 @@
   --color-accent: var(--accent);
   --color-accent-soft: var(--accent-soft);
 }
-
 html {
   scroll-behavior: smooth;
 }
-
+button {
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
 body {
   background: var(--paper);
   color: var(--ink);
   font-family: -apple-system, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
 }
-
 .font-serif {
   font-family: "Iowan Old Style", "Palatino Linotype", "Georgia", serif;
 }
-
 .font-mono {
   font-family: "SF Mono", "Courier New", monospace;
 }
-
 :focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 3px;
 }
-
 @media (prefers-reduced-motion: reduce) {
   * {
     animation-duration: 0.001ms !important;
