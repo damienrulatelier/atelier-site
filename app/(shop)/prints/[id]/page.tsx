@@ -1,6 +1,7 @@
 import { getAllProductsAsync } from "@/lib/products";
-import PrintPage from "./PrintPage";
-export const dynamic = "force-dynamic";
+import dynamic from "next/dynamic";
+export const dynamic_config = "force-dynamic";
+const PrintPage = dynamic(() => import("./PrintPage"), { ssr: false });
 export default async function PrintDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const products = await getAllProductsAsync();
