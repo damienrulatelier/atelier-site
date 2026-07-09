@@ -88,7 +88,7 @@ export default function Client({ product, all }: { product: Product | null; all:
     .sort((a,b)=>b.s-a.s).slice(0,3).map(x=>x.p);
 
   return (
-    <main>
+    <main suppressHydrationWarning>
       <div className="max-w-6xl mx-auto px-6 md:px-8 py-8">
         <Link href="/atelier" style={btnStyle} className="text-sm text-[#8C8780] hover:text-[#181614] mb-6 inline-flex items-center gap-1.5">← Retour</Link>
         <div className="grid md:grid-cols-2 gap-10 md:gap-14">
