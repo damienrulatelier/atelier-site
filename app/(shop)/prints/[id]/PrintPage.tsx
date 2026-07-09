@@ -99,11 +99,11 @@ export default function PrintPage({ product, allProducts }: { product: Product |
           <div>
             {hasTabs && (
               <div className="flex mb-3 border border-[#DEDAD1]">
-                <button type="button" onClick={()=>{setTab("original");setActiveImg(0);}} className={`flex-1 py-2 text-xs uppercase tracking-wide font-semibold transition-colors ${tab==="original"?"bg-[#B23A24] text-white":"text-[#3A3631] hover:bg-[#F2F0EA]"}`}>✦ Œuvre originale</button>
-                <button type="button" onClick={()=>{setTab("print");setActiveImg(0);}} className={`flex-1 py-2 text-xs uppercase tracking-wide font-semibold transition-colors ${tab==="print"?"bg-[#181614] text-white":"text-[#3A3631] hover:bg-[#F2F0EA]"}`}>Print</button>
+                <button type="button" style={{touchAction:"manipulation"}} onClick={()=>{setTab("original");setActiveImg(0);}} className={`flex-1 py-2 text-xs uppercase tracking-wide font-semibold transition-colors ${tab==="original"?"bg-[#B23A24] text-white":"text-[#3A3631] hover:bg-[#F2F0EA]"}`}>✦ Œuvre originale</button>
+                <button type="button" style={{touchAction:"manipulation"}} onClick={()=>{setTab("print");setActiveImg(0);}} className={`flex-1 py-2 text-xs uppercase tracking-wide font-semibold transition-colors ${tab==="print"?"bg-[#181614] text-white":"text-[#3A3631] hover:bg-[#F2F0EA]"}`}>Print</button>
               </div>
             )}
-            <button onClick={()=>photos.length>0&&setZoomOpen(true)} className="w-full bg-[#F2F0EA] border border-[#DEDAD1] overflow-hidden cursor-zoom-in block">
+            <button onClick={()=>photos.length>0&&setZoomOpen(true)} style={{touchAction:"manipulation"}} className="w-full bg-[#F2F0EA] border border-[#DEDAD1] overflow-hidden cursor-zoom-in block">
               {photos[activeImg] ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={optimizeImage(photos[activeImg],1200)} alt={product.title} className="w-full h-auto block" />
@@ -140,7 +140,7 @@ export default function PrintPage({ product, allProducts }: { product: Product |
             {soldOut ? (
               <div className="w-full md:w-auto px-8 py-4 text-sm uppercase tracking-wide font-semibold bg-[#3A3631] text-white text-center cursor-not-allowed opacity-70">Édition épuisée</div>
             ) : (
-              <button onClick={()=>setAddOpen(true)} className="w-full md:w-auto px-8 py-4 text-sm uppercase tracking-wide font-semibold bg-[#181614] text-white hover:bg-[#B23A24] transition-colors">
+              <button onClick={()=>setAddOpen(true)} style={{touchAction:"manipulation"}} className="w-full md:w-auto px-8 py-4 text-sm uppercase tracking-wide font-semibold bg-[#181614] text-white hover:bg-[#B23A24] transition-colors">
                 Choisir un format et ajouter au panier
               </button>
             )}
