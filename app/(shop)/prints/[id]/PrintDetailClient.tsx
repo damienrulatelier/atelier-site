@@ -12,7 +12,7 @@ function TemporaryCountdown({ until }: { until: string }) {
   const [timeLeft, setTimeLeft] = useState<string>("");
   useEffect(() => {
     function update() {
-      const diff = new Date(until).getTime() - Date.now();
+      const diff = new Date(until.replace(" ", "T")).getTime() - Date.now();
       if (diff <= 0) { setTimeLeft("Expiré"); return; }
       const d = Math.floor(diff / 86400000);
       const h = Math.floor((diff % 86400000) / 3600000);
@@ -34,7 +34,7 @@ function LastChanceBanner({ until }: { until: string }) {
   const [timeLeft, setTimeLeft] = useState<string>("");
   useEffect(() => {
     function update() {
-      const diff = new Date(until).getTime() - Date.now();
+      const diff = new Date(until.replace(" ", "T")).getTime() - Date.now();
       if (diff <= 0) { setTimeLeft("Retiré"); return; }
       const d = Math.floor(diff / 86400000);
       const h = Math.floor((diff % 86400000) / 3600000);
@@ -52,56 +52,48 @@ function LastChanceBanner({ until }: { until: string }) {
     </div>
   );
 }
-export default function PrintDetailClient({ productId, initialProduct, allProducts: initialAllProducts }: { productId: string; initialProduct: Product | null; allProducts: Product[] }) {
-  const id = productId;
+export default function PrintDetailClient({ productId, initialProduct, allProducts: initialAllProducts }: {
+  productId: string;
+  initialProduct: Product | null;
+  allProducts: Product[];
+}) {
   const router = useRouter();
   const [allProducts] = useState<Product[]>(initialAllProducts);
-  const [product] = useState<Product | null | undefined>(initialProduct);
+  const [product] = useState<Product | null>(initialProduct);
   const [zoomOpen, setZoomOpen] = useState(false);
   const [addOpen, setAddOpen] = useState(false);
   const [wallPreviewOpen, setWallPreviewOpen] = useState(false);
   const [activeImage, setActiveImage] = useState(0);
   const [photoTab, setPhotoTab] = useState<"original" | "print">("original");
   const [fromOriginals, setFromOriginals] = useState(false);
+  const [frameColor, setFrameColor] = useState("#181614");
   useEffect(() => {
     setFromOriginals(new URLSearchParams(window.location.search).get("from") === "originals");
   }, []);
-  const isDrop = !!(product?.type === "drop" || product?.temporaryUntil);
-  const hasOrigPhotos = (product?.imagesOriginal || []).length > 0;
-  const hasPrintPhotos = (product?.imagesPrint || []).length > 0 || (product?.images || []).length > 0;
-  const wallHasTabs = hasOrigPhotos && hasPrintPhotos && (isDrop || (product?.imagesPrint || []).length > 0);
-  const [frameColor, setFrameColor] = useState("#181614");
   useEffect(() => {
     if (!product?.images[0]) return;
-    const img = new Image();
+    const img = new window.Image();
     img.crossOrigin = "anonymous";
     img.onload = () => {
       try {
         const canvas = document.createElement("canvas");
-        const sampleSize = 40;
-        canvas.width = sampleSize;
-        canvas.height = sampleSize;
+        canvas.width = 40; canvas.height = 40;
         const ctx = canvas.getContext("2d");
         if (!ctx) return;
-        ctx.drawImage(img, 0, 0, sampleSize, sampleSize);
-        const data = ctx.getImageData(0, 0, sampleSize, sampleSize).data;
+        ctx.drawImage(img, 0, 0, 40, 40);
+        const data = ctx.getImageData(0, 0, 40, 40).data;
         let r = 0, g = 0, b = 0;
-        const count = sampleSize * sampleSize;
         for (let i = 0; i < data.length; i += 4) { r += data[i]; g += data[i + 1]; b += data[i + 2]; }
-        r = Math.round(r / count * 0.55);
-        g = Math.round(g / count * 0.55);
-        b = Math.round(b / count * 0.55);
-        setFrameColor(`rgb(${r}, ${g}, ${b})`);
+        const c = 40 * 40;
+        setFrameColor(`rgb(${Math.round(r/c*0.55)},${Math.round(g/c*0.55)},${Math.round(b/c*0.55)})`);
       } catch { setFrameColor("#181614"); }
     };
-    img.onerror = () => setFrameColor("#181614");
     img.src = product.images[0];
   }, [product?.images]);
-  if (product === undefined) return <main className="py-24 text-center text-sm text-[#8C8780]">Chargement…</main>;
-  if (product === null) return (
+  if (!product) return (
     <main className="max-w-xl mx-auto px-8 py-24 text-center">
       <p className="text-[#8C8780] mb-4">Cette œuvre n&rsquo;est plus disponible.</p>
-      <Link href="/" className="text-[#B23A24] underline text-sm">Retourner à la boutique</Link>
+      <Link href="/atelier" className="text-[#B23A24] underline text-sm">Retourner à l&rsquo;atelier</Link>
     </main>
   );
   function similarityScore(p: Product): number {
@@ -130,66 +122,61 @@ export default function PrintDetailClient({ productId, initialProduct, allProduc
     return prices.length ? Math.min(...prices.filter((v) => v > 0)) : (p.price || 0);
   }
   function fmtPrice(n: number) { return n.toFixed(2).replace(".", ",") + " €"; }
+  const hasOriginalPhotos = (product.imagesOriginal || []).length > 0;
+  const isDrop = product.type === "drop" || !!product.temporaryUntil;
+  const printPhotos = (product.imagesPrint || []).length > 0 ? product.imagesPrint! : product.images;
+  const hasTabs = hasOriginalPhotos && printPhotos.length > 0 && (isDrop || (product.imagesPrint || []).length > 0);
+  const wallHasTabs = hasTabs;
+  const activePhotos = hasTabs
+    ? (photoTab === "original" ? product.imagesOriginal! : printPhotos)
+    : fromOriginals && hasOriginalPhotos
+    ? product.imagesOriginal!
+    : product.images;
   return (
     <main>
       <div className="max-w-6xl mx-auto px-6 md:px-8 py-8">
-        <button onClick={() => window.history.length > 1 ? window.history.back() : window.location.href = "/atelier"} className="text-sm text-[#8C8780] hover:text-[#181614] mb-6 inline-flex items-center gap-1.5 cursor-pointer">← Retour</button>
+        <button
+          onClick={() => window.history.length > 1 ? window.history.back() : (window.location.href = "/atelier")}
+          className="text-sm text-[#8C8780] hover:text-[#181614] mb-6 inline-flex items-center gap-1.5 cursor-pointer"
+        >← Retour</button>
         <div className="grid md:grid-cols-2 gap-10 md:gap-14">
-          {/* IMAGE */}
           <div>
-            {(() => {
-              const hasOriginalPhotos = (product.imagesOriginal || []).length > 0;
-              const isDrop = product.type === "drop" || !!product.temporaryUntil;
-              // Pour les drops : onglets original/print (on utilise images pour les prints si imagesPrint vide)
-              const printPhotos = (product.imagesPrint || []).length > 0 ? product.imagesPrint! : product.images;
-              const hasTabs = hasOriginalPhotos && printPhotos.length > 0 && (isDrop || (product.imagesPrint || []).length > 0);
-              const activePhotos = hasTabs
-                ? (photoTab === "original" ? product.imagesOriginal! : printPhotos)
-                : fromOriginals && hasOriginalPhotos
-                ? product.imagesOriginal!
-                : product.images;
-              return (
-                <>
-                  {hasTabs && (
-                    <div className="flex gap-0 mb-3 border border-[#DEDAD1]">
-                      <button type="button" onClick={() => { setPhotoTab("original"); setActiveImage(0); }}
-                        className={`flex-1 py-2 text-xs uppercase tracking-wide font-semibold transition-colors ${photoTab === "original" ? "bg-[#B23A24] text-white" : "text-[#3A3631] hover:bg-[#F2F0EA]"}`}>
-                        ✦ Œuvre originale
-                      </button>
-                      <button type="button" onClick={() => { setPhotoTab("print"); setActiveImage(0); }}
-                        className={`flex-1 py-2 text-xs uppercase tracking-wide font-semibold transition-colors ${photoTab === "print" ? "bg-[#181614] text-white" : "text-[#3A3631] hover:bg-[#F2F0EA]"}`}>
-                        Print
-                      </button>
-                    </div>
-                  )}
-                  <button onClick={() => activePhotos.length > 0 && setZoomOpen(true)} className="w-full bg-[#F2F0EA] border border-[#DEDAD1] relative overflow-hidden cursor-zoom-in block">
-
-                    {activePhotos[activeImage] ? (
-                      <img src={activePhotos[activeImage]} alt={product.title} className="w-full h-auto block" />
-                    ) : (
-                      <div className="w-full aspect-square flex items-center justify-center text-[#8C8780] text-sm">Pas de photo</div>
-                    )}
+            {hasTabs && (
+              <div className="flex gap-0 mb-3 border border-[#DEDAD1]">
+                <button type="button" onClick={() => { setPhotoTab("original"); setActiveImage(0); }}
+                  className={`flex-1 py-2 text-xs uppercase tracking-wide font-semibold transition-colors ${photoTab === "original" ? "bg-[#B23A24] text-white" : "text-[#3A3631] hover:bg-[#F2F0EA]"}`}>
+                  ✦ Œuvre originale
+                </button>
+                <button type="button" onClick={() => { setPhotoTab("print"); setActiveImage(0); }}
+                  className={`flex-1 py-2 text-xs uppercase tracking-wide font-semibold transition-colors ${photoTab === "print" ? "bg-[#181614] text-white" : "text-[#3A3631] hover:bg-[#F2F0EA]"}`}>
+                  Print
+                </button>
+              </div>
+            )}
+            <button onClick={() => activePhotos.length > 0 && setZoomOpen(true)} className="w-full bg-[#F2F0EA] border border-[#DEDAD1] relative overflow-hidden cursor-zoom-in block">
+              {activePhotos[activeImage] ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={optimizeImage(activePhotos[activeImage], 1200)} alt={product.title} className="w-full h-auto block" />
+              ) : (
+                <div className="w-full aspect-square flex items-center justify-center text-[#8C8780] text-sm">Pas de photo</div>
+              )}
+            </button>
+            {activePhotos.length > 1 && (
+              <div className="flex gap-2 mt-3">
+                {activePhotos.map((img, i) => (
+                  <button key={img} onClick={() => setActiveImage(i)} className={`w-16 h-16 border overflow-hidden flex-shrink-0 ${i === activeImage ? "border-[#181614]" : "border-[#DEDAD1]"}`}>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={optimizeImage(img, 200)} alt="" className="w-full h-full object-cover" />
                   </button>
-                  {activePhotos.length > 1 && (
-                    <div className="flex gap-2 mt-3">
-                      {activePhotos.map((img, i) => (
-                        <button key={img} onClick={() => setActiveImage(i)} className={`w-16 h-16 border overflow-hidden flex-shrink-0 ${i === activeImage ? "border-[#181614]" : "border-[#DEDAD1]"}`}>
-                          {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img src={img} alt="" className="w-full h-full object-cover" />
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </>
-              );
-            })()}
+                ))}
+              </div>
+            )}
             {product.wallPreviewEnabled && product.images.length > 0 && (
               <button onClick={() => setWallPreviewOpen(true)} className="mt-4 text-xs uppercase tracking-wide font-medium text-[#3A3631] border border-[#DEDAD1] px-4 py-2.5 hover:border-[#181614] transition-colors inline-flex items-center gap-2">
                 <span>🖼️</span> Voir en situation sur un mur
               </button>
             )}
           </div>
-          {/* INFOS */}
           <div>
             <h1 className="font-serif text-[32px] md:text-[38px] leading-tight text-[#181614] mb-2">{product.title}</h1>
             <p className="font-mono text-[12px] uppercase tracking-wide text-[#8C8780] mb-6">
@@ -211,10 +198,10 @@ export default function PrintDetailClient({ productId, initialProduct, allProduc
                 <EditionNumberBadge productId={product.id} editionTotal={product.editionTotal} />
               </div>
             )}
-            {product.temporaryUntil && new Date(product.temporaryUntil).getTime() > Date.now() && (
+            {product.temporaryUntil && new Date(product.temporaryUntil.replace(" ", "T")).getTime() > Date.now() && (
               <TemporaryCountdown until={product.temporaryUntil} />
             )}
-            {product.retireAt && new Date(product.retireAt).getTime() > Date.now() && (
+            {product.retireAt && new Date(product.retireAt.replace(" ", "T")).getTime() > Date.now() && (
               <LastChanceBanner until={product.retireAt} />
             )}
             {(() => {
@@ -241,7 +228,8 @@ export default function PrintDetailClient({ productId, initialProduct, allProduc
                   <p className="text-xs uppercase tracking-wide font-semibold text-[#B23A24] mb-2">🎨 Œuvre originale disponible</p>
                   <Link href={`/originals/${linked.id}`} className="flex items-center gap-3 group">
                     {linked.images[0] && (
-                      <img src={linked.images[0]} alt={linked.title} className="w-12 h-12 object-cover border border-[#DEDAD1]" />
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={optimizeImage(linked.images[0], 200)} alt={linked.title} className="w-12 h-12 object-cover border border-[#DEDAD1]" />
                     )}
                     <div>
                       <p className="text-sm font-medium group-hover:text-[#B23A24] transition-colors">{linked.title}</p>
@@ -267,7 +255,8 @@ export default function PrintDetailClient({ productId, initialProduct, allProduc
                       <span className="absolute top-3 left-3 font-mono text-[9px] px-1.5 py-0.5 z-10 border bg-[#B23A24] text-white border-[#B23A24]">ORIGINAL</span>
                     )}
                     {p.images[0] ? (
-                      <img src={p.images[0]} alt={p.title} className="w-full h-auto block transition-transform duration-500 group-hover:scale-105" />
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={optimizeImage(p.images[0], 600)} alt={p.title} className="w-full h-auto block transition-transform duration-500 group-hover:scale-105" />
                     ) : (
                       <div className="aspect-square w-full flex items-center justify-center text-[#8C8780] text-xs">Pas de photo</div>
                     )}
@@ -283,15 +272,7 @@ export default function PrintDetailClient({ productId, initialProduct, allProduc
         </section>
       )}
       {zoomOpen && (
-        <ImageLightbox images={(() => {
-          const hasOriginalPhotos = (product.imagesOriginal || []).length > 0;
-          const isDrop = product.type === "drop" || !!product.temporaryUntil;
-          const printPhotos = (product.imagesPrint || []).length > 0 ? product.imagesPrint! : product.images;
-          const hasTabs = hasOriginalPhotos && printPhotos.length > 0 && (isDrop || (product.imagesPrint || []).length > 0);
-          if (hasTabs) return photoTab === "original" ? product.imagesOriginal! : printPhotos;
-          if (fromOriginals && hasOriginalPhotos) return product.imagesOriginal!;
-          return product.images;
-        })()} title={product.title} onClose={() => setZoomOpen(false)} />
+        <ImageLightbox images={activePhotos} title={product.title} onClose={() => setZoomOpen(false)} />
       )}
       {addOpen && <AddToCartModal product={product} onClose={() => setAddOpen(false)} />}
       {wallPreviewOpen && (
@@ -302,12 +283,12 @@ export default function PrintDetailClient({ productId, initialProduct, allProduc
               <div className="relative w-[46%] p-2 shadow-[0_10px_30px_rgba(24,22,20,0.35)]" style={{ backgroundColor: frameColor }}>
                 <div className="w-full border-[3px]" style={{ borderColor: frameColor }}>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-<img src={wallHasTabs && photoTab === "original" && product.imagesOriginal?.[0] ? product.imagesOriginal[0] : product.images[0]} alt={product.title} className="w-full h-auto block" />
+                  <img src={optimizeImage(wallHasTabs && photoTab === "original" && product.imagesOriginal?.[0] ? product.imagesOriginal[0] : product.images[0], 800)} alt={product.title} className="w-full h-auto block" />
                 </div>
               </div>
             </div>
             <div className="bg-[#FAFAF8] px-5 py-4 flex items-center justify-between gap-4">
-              <p className="text-xs text-[#8C8780]">Aperçu indicatif. Le cadre n&rsquo;est pas inclus à l&rsquo;achat — seul le tirage est vendu.</p>
+              <p className="text-xs text-[#8C8780]">Aperçu indicatif. Le cadre n&rsquo;est pas inclus à l&rsquo;achat.</p>
               <button onClick={() => setWallPreviewOpen(false)} className="text-xs uppercase tracking-wide font-medium text-[#181614] hover:text-[#B23A24] flex-shrink-0">Fermer</button>
             </div>
           </div>
