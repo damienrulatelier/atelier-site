@@ -25,9 +25,13 @@ function minPrice(p: Product): number {
 }
 function Countdown({ until }: { until: string }) {
   const [parts, setParts] = useState({ d: 0, h: 0, m: 0, s: 0, expired: false });
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(true); }, []);
   useEffect(() => {
+    if (!mounted) return;
     function tick() {
-      const diff = new Date(until).getTime() - Date.now();
+      const target = new Date(until.replace(" ", "T")).getTime();
+      const diff = target - Date.now();
       if (diff <= 0) { setParts({ d: 0, h: 0, m: 0, s: 0, expired: true }); return; }
       setParts({
         d: Math.floor(diff / 86400000),
@@ -40,9 +44,10 @@ function Countdown({ until }: { until: string }) {
     tick();
     const id = setInterval(tick, 1000);
     return () => clearInterval(id);
-  }, [until]);
+  }, [until, mounted]);
+  if (!mounted) return null;
   if (parts.expired) return <span className="font-mono text-[#8C8780] text-sm">Expiré</span>;
-  const urgent = new Date(until).getTime() - Date.now() < 3600000;
+  const urgent = new Date(until.replace(" ", "T")).getTime() - Date.now() < 3600000;
   return (
     <div className={`flex items-center gap-3 ${urgent ? "text-[#B23A24]" : "text-[#FAFAF8]"}`}>
       {parts.d > 0 && (
@@ -82,7 +87,7 @@ export default function DropFeature({ product }: { product: Product }) {
         {displayImg ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
-            src={optimizeImage(displayImg, 1200)}
+            src={displayImg}
             alt={product.title}
             className="w-full h-auto block transition-transform duration-500 group-hover:scale-[1.03]"
           />
