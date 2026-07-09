@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import type { Product } from "@/lib/products-types";
 import ProductGrid from "../components/ProductGrid";
+import DropFeature from "../components/DropFeature";
 import BdFeature from "../components/BdFeature";
 import ImageLightbox from "../components/ImageLightbox";
 import FAQ from "../components/FAQ";
@@ -196,10 +197,10 @@ export default function HomePage() {
               <h2 className="font-serif text-[42px] text-[#FAFAF8]">Drops</h2>
               <p className="text-sm text-[#8C8780] mt-1">Disponibles pour une durée limitée — le temps du compte à rebours</p>
             </div>
-            <div className="flex justify-center">
-              <div className="w-full max-w-lg">
-                <ProductGrid products={drops} context="drops" />
-              </div>
+            <div className="flex flex-col gap-0">
+              {drops.map((p) => (
+                <DropFeature key={p.id} product={p} />
+              ))}
             </div>
           </div>
         </section>
