@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import type { Product } from "@/lib/products-types";
+import { optimizeImage } from "@/lib/cloudinary";
 function fmt(n: number) {
   return n.toFixed(2).replace(".", ",") + " €";
 }
@@ -80,7 +81,7 @@ export default function DropFeature({ product }: { product: Product }) {
         {displayImg ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
-            src={displayImg}
+            src={optimizeImage(displayImg, 1200)}
             alt={product.title}
             className="w-full h-auto block transition-transform duration-500 group-hover:scale-[1.03]"
           />
