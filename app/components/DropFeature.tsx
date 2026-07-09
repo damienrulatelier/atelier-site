@@ -25,10 +25,7 @@ function minPrice(p: Product): number {
 }
 function Countdown({ until }: { until: string }) {
   const [parts, setParts] = useState({ d: 0, h: 0, m: 0, s: 0, expired: false });
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => { setMounted(true); }, []);
   useEffect(() => {
-    if (!mounted) return;
     function tick() {
       const target = new Date(until.replace(" ", "T")).getTime();
       const diff = target - Date.now();
@@ -44,8 +41,7 @@ function Countdown({ until }: { until: string }) {
     tick();
     const id = setInterval(tick, 1000);
     return () => clearInterval(id);
-  }, [until, mounted]);
-  if (!mounted) return null;
+  }, [until]);
   if (parts.expired) return <span className="font-mono text-[#8C8780] text-sm">Expiré</span>;
   const urgent = new Date(until.replace(" ", "T")).getTime() - Date.now() < 3600000;
   return (

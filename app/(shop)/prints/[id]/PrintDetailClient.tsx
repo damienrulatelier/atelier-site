@@ -130,7 +130,7 @@ export default function PrintDetailClient({ productId, initialProduct, allProduc
   return (
     <main>
       <div className="max-w-6xl mx-auto px-6 md:px-8 py-8">
-        <button onClick={() => router.back()} className="text-sm text-[#8C8780] hover:text-[#181614] mb-6 inline-flex items-center gap-1.5">← Retour</button>
+        <button onClick={() => window.history.length > 1 ? window.history.back() : window.location.href = "/atelier"} className="text-sm text-[#8C8780] hover:text-[#181614] mb-6 inline-flex items-center gap-1.5 cursor-pointer">← Retour</button>
         <div className="grid md:grid-cols-2 gap-10 md:gap-14">
           {/* IMAGE */}
           <div>
@@ -280,7 +280,15 @@ export default function PrintDetailClient({ productId, initialProduct, allProduc
         </section>
       )}
       {zoomOpen && (
-        <ImageLightbox images={product.images} title={product.title} onClose={() => setZoomOpen(false)} />
+        <ImageLightbox images={(() => {
+          const hasOriginalPhotos = (product.imagesOriginal || []).length > 0;
+          const isDrop = product.type === "drop" || !!product.temporaryUntil;
+          const printPhotos = (product.imagesPrint || []).length > 0 ? product.imagesPrint! : product.images;
+          const hasTabs = hasOriginalPhotos && printPhotos.length > 0 && (isDrop || (product.imagesPrint || []).length > 0);
+          if (hasTabs) return photoTab === "original" ? product.imagesOriginal! : printPhotos;
+          if (fromOriginals && hasOriginalPhotos) return product.imagesOriginal!;
+          return product.images;
+        })()} title={product.title} onClose={() => setZoomOpen(false)} />
       )}
       {addOpen && <AddToCartModal product={product} onClose={() => setAddOpen(false)} />}
       {wallPreviewOpen && (

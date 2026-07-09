@@ -135,7 +135,10 @@ export default function CommandePage() {
           {lines.map((l) => (
             <div key={l.lineId} className="px-4 py-3 text-sm">
               <div className="flex justify-between">
-                <span>{l.qty} × {l.title}</span>
+                <span>
+                  {l.qty} × {l.title}
+                  {l.size && <span className="block text-xs text-[#8C8780] mt-0.5">{l.size}</span>}
+                </span>
                 <span className="font-mono">{fmt(l.price * l.qty)}</span>
               </div>
               {l.isDedicated && <div className="mt-1.5 text-xs italic text-[#3A3631]">✎ {l.dedication}</div>}
