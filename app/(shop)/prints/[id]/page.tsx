@@ -4,6 +4,7 @@ import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import type { Product } from "@/lib/products-types";
 import ImageLightbox from "../../../components/ImageLightbox";
+import { optimizeImage } from "@/lib/cloudinary";
 import AddToCartModal from "../../../components/AddToCartModal";
 import ProductReviews from "../../../components/ProductReviews";
 import EditionNumberBadge from "../../../components/EditionNumberBadge";
@@ -172,8 +173,8 @@ export default function PrintDetailPage() {
                   <button onClick={() => activePhotos.length > 0 && setZoomOpen(true)} className="w-full bg-[#F2F0EA] border border-[#DEDAD1] relative overflow-hidden cursor-zoom-in block">
 
                     {activePhotos[activeImage] ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={activePhotos[activeImage]} alt={product.title} className="w-full h-auto block" />
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={optimizeImage(activePhotos[activeImage], 1200)} alt={product.title} className="w-full h-auto block" />
                     ) : (
                       <div className="w-full aspect-square flex items-center justify-center text-[#8C8780] text-sm">Pas de photo</div>
                     )}
@@ -249,8 +250,8 @@ export default function PrintDetailPage() {
                   <p className="text-xs uppercase tracking-wide font-semibold text-[#B23A24] mb-2">🎨 Œuvre originale disponible</p>
                   <Link href={`/originals/${linked.id}`} className="flex items-center gap-3 group">
                     {linked.images[0] && (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={linked.images[0]} alt={linked.title} className="w-12 h-12 object-cover border border-[#DEDAD1]" />
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={optimizeImage(linked.images[0], 200)} alt={linked.title} className="w-12 h-12 object-cover border border-[#DEDAD1]" />
                     )}
                     <div>
                       <p className="text-sm font-medium group-hover:text-[#B23A24] transition-colors">{linked.title}</p>
@@ -276,8 +277,8 @@ export default function PrintDetailPage() {
                       <span className="absolute top-3 left-3 font-mono text-[9px] px-1.5 py-0.5 z-10 border bg-[#B23A24] text-white border-[#B23A24]">ORIGINAL</span>
                     )}
                     {p.images[0] ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={p.images[0]} alt={p.title} className="w-full h-auto block transition-transform duration-500 group-hover:scale-105" />
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={optimizeImage(p.images[0], 600)} alt={p.title} className="w-full h-auto block transition-transform duration-500 group-hover:scale-105" />
                     ) : (
                       <div className="aspect-square w-full flex items-center justify-center text-[#8C8780] text-xs">Pas de photo</div>
                     )}
@@ -304,7 +305,7 @@ export default function PrintDetailPage() {
               <div className="relative w-[46%] p-2 shadow-[0_10px_30px_rgba(24,22,20,0.35)]" style={{ backgroundColor: frameColor }}>
                 <div className="w-full border-[3px]" style={{ borderColor: frameColor }}>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={wallHasTabs && photoTab === "original" && product.imagesOriginal?.[0] ? product.imagesOriginal[0] : product.images[0]} alt={product.title} className="w-full h-auto block" />
+<img src={optimizeImage(wallHasTabs && photoTab === "original" && product.imagesOriginal?.[0] ? product.imagesOriginal[0] : product.images[0], 800)} alt={product.title} className="w-full h-auto block" />
                 </div>
               </div>
             </div>

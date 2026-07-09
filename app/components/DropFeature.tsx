@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import type { Product } from "@/lib/products-types";
+import Image from "next/image";
 import { optimizeImage } from "@/lib/cloudinary";
 function fmt(n: number) {
   return n.toFixed(2).replace(".", ",") + " €";

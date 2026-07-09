@@ -7,6 +7,7 @@ import DropFeature from "../components/DropFeature";
 import BdFeature from "../components/BdFeature";
 import ImageLightbox from "../components/ImageLightbox";
 import FAQ from "../components/FAQ";
+import { optimizeImage } from "@/lib/cloudinary";
 function fmt(n: number) {
   return n.toFixed(2).replace(".", ",") + " €";
 }
