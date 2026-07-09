@@ -2,11 +2,11 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import type { Product } from "@/lib/products-types";
-import ProductGrid from "../components/ProductGrid";
-import DropFeature from "../components/DropFeature";
-import BdFeature from "../components/BdFeature";
-import ImageLightbox from "../components/ImageLightbox";
-import FAQ from "../components/FAQ";
+import ProductGrid from "../../components/ProductGrid";
+import DropFeature from "../../components/DropFeature";
+import BdFeature from "../../components/BdFeature";
+import ImageLightbox from "../../components/ImageLightbox";
+import FAQ from "../../components/FAQ";
 import { optimizeImage } from "@/lib/cloudinary";
 function fmt(n: number) {
   return n.toFixed(2).replace(".", ",") + " €";
