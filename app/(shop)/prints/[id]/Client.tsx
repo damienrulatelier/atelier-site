@@ -68,7 +68,8 @@ export default function Client({ product, all }: { product: Product | null; all:
   const isDrop = product.type === "drop" || !!product.temporaryUntil;
   const printPh = (product.imagesPrint||[]).length > 0 ? product.imagesPrint! : product.images;
   const hasTabs = hasOrig && printPh.length > 0 && (isDrop || (product.imagesPrint||[]).length > 0);
-  const photos = hasTabs ? (tab==="original" ? product.imagesOriginal! : printPh) : fromOrig && hasOrig ? product.imagesOriginal! : product.images;
+  // fromOrig toujours false au premier rendu pour éviter mismatch hydratation
+  const photos = hasTabs ? (tab==="original" ? product.imagesOriginal! : printPh) : product.images;
   const soldOut = product.editionTotal > 0 && product.editionSold >= product.editionTotal;
 
   function priceFrom(p: Product) {
