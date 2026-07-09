@@ -68,9 +68,12 @@ export default function Client({ product, similar }: { product: Product | null; 
   const isDrop = product.type === "drop" || !!product.temporaryUntil;
   const printPh = (product.imagesPrint||[]).length > 0 ? product.imagesPrint! : product.images;
   const hasTabs = hasOrig && printPh.length > 0 && (isDrop || (product.imagesPrint||[]).length > 0);
-  // fromOrig toujours false au premier rendu pour éviter mismatch hydratation
   const photos = hasTabs ? (tab==="original" ? product.imagesOriginal! : printPh) : product.images;
   const soldOut = product.editionTotal > 0 && product.editionSold >= product.editionTotal;
+  // Ne pas appeler Date.now() au rendu SSR — utiliser un état client
+  const [isClient, setIsClient] = useState(false);
+  useEffect(() => { setIsClient(true); }, []);
+  const showCountdown = isClient && !!product.temporaryUntil && new Date(product.temporaryUntil).getTime() > Date.now();
 
   function priceFrom(p: Product) {
     if (!p.delivery) return p.price||0;
@@ -128,7 +131,7 @@ export default function Client({ product, similar }: { product: Product | null; 
             {product.type==="original"&&<p className="text-sm text-[#B23A24] font-medium italic mb-6">Pièce unique — reproductions et autres formats disponibles ci-dessous.</p>}
             {product.description&&<p className="text-[15.5px] text-[#3A3631] leading-relaxed mb-8 whitespace-pre-line">{product.description}</p>}
             {product.type==="print"&&product.editionTotal>0&&!fromOrig&&<div className="mb-4"><EditionNumberBadge productId={product.id} editionTotal={product.editionTotal}/></div>}
-            {product.temporaryUntil&&new Date(product.temporaryUntil).getTime()>Date.now()&&<Countdown until={product.temporaryUntil}/>}
+            {showCountdown&&<Countdown until={product.temporaryUntil!}/>}
             {soldOut
               ? <div className="w-full md:w-auto px-8 py-4 text-sm uppercase tracking-wide font-semibold bg-[#3A3631] text-white text-center cursor-not-allowed opacity-70">Édition épuisée</div>
               : <div role="button" tabIndex={0} onClick={()=>setAddOpen(true)} onKeyDown={e=>e.key==="Enter"&&setAddOpen(true)} className="w-full md:w-auto px-8 py-4 text-sm uppercase tracking-wide font-semibold bg-[#181614] text-white hover:bg-[#B23A24] transition-colors cursor-pointer inline-block text-center">Choisir un format et ajouter au panier</div>
