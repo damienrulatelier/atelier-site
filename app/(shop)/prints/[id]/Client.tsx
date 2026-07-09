@@ -93,28 +93,28 @@ export default function Client({ product, similar }: { product: Product | null; 
           <div>
             {hasTabs && (
               <div className="flex mb-3 border border-[#DEDAD1]">
-                <button type="button" style={btnStyle} onClick={()=>{setTab("original");setActiveImg(0);}} className={`flex-1 py-2 text-xs uppercase tracking-wide font-semibold transition-colors ${tab==="original"?"bg-[#B23A24] text-white":"text-[#3A3631] hover:bg-[#F2F0EA]"}`}>✦ Œuvre originale</button>
-                <button type="button" style={btnStyle} onClick={()=>{setTab("print");setActiveImg(0);}} className={`flex-1 py-2 text-xs uppercase tracking-wide font-semibold transition-colors ${tab==="print"?"bg-[#181614] text-white":"text-[#3A3631] hover:bg-[#F2F0EA]"}`}>Print</button>
+                <div role="button" tabIndex={0} onClick={()=>{setTab("original");setActiveImg(0);}} className={`flex-1 py-2 text-xs uppercase tracking-wide font-semibold transition-colors cursor-pointer text-center ${tab==="original"?"bg-[#B23A24] text-white":"text-[#3A3631] hover:bg-[#F2F0EA]"}`}>✦ Œuvre originale</div>
+                <div role="button" tabIndex={0} onClick={()=>{setTab("print");setActiveImg(0);}} className={`flex-1 py-2 text-xs uppercase tracking-wide font-semibold transition-colors cursor-pointer text-center ${tab==="print"?"bg-[#181614] text-white":"text-[#3A3631] hover:bg-[#F2F0EA]"}`}>Print</div>
               </div>
             )}
-            <button style={btnStyle} onClick={()=>photos.length>0&&setZoomOpen(true)} className="w-full bg-[#F2F0EA] border border-[#DEDAD1] overflow-hidden cursor-zoom-in block">
+            <div onClick={()=>photos.length>0&&setZoomOpen(true)} className="w-full bg-[#F2F0EA] border border-[#DEDAD1] overflow-hidden cursor-zoom-in block">
               {photos[activeImg]
                 ? <img src={optimizeImage(photos[activeImg],1200)} alt={product.title} className="w-full h-auto block"/>
                 : <div className="aspect-square flex items-center justify-center text-[#8C8780] text-sm">Pas de photo</div>}
-            </button>
+            </div>
             {photos.length > 1 && (
               <div className="flex gap-2 mt-3">
                 {photos.map((img,i) => (
-                  <button key={img} style={btnStyle} onClick={()=>setActiveImg(i)} className={`w-16 h-16 border overflow-hidden flex-shrink-0 ${i===activeImg?"border-[#181614]":"border-[#DEDAD1]"}`}>
+                  <div key={img} role="button" tabIndex={0} onClick={()=>setActiveImg(i)} className={`w-16 h-16 border overflow-hidden flex-shrink-0 cursor-pointer ${i===activeImg?"border-[#181614]":"border-[#DEDAD1]"}`}>
                     <img src={optimizeImage(img,200)} alt="" className="w-full h-full object-cover"/>
-                  </button>
+                  </div>
                 ))}
               </div>
             )}
             {product.wallPreviewEnabled && product.images.length > 0 && (
-              <button style={btnStyle} onClick={()=>setWallOpen(true)} className="mt-4 text-xs uppercase tracking-wide font-medium text-[#3A3631] border border-[#DEDAD1] px-4 py-2.5 hover:border-[#181614] transition-colors inline-flex items-center gap-2">
+              <div role="button" tabIndex={0} onClick={()=>setWallOpen(true)} className="mt-4 text-xs uppercase tracking-wide font-medium text-[#3A3631] border border-[#DEDAD1] px-4 py-2.5 hover:border-[#181614] transition-colors inline-flex items-center gap-2 cursor-pointer">
                 🖼️ Voir en situation sur un mur
-              </button>
+              </div>
             )}
           </div>
           <div>
@@ -131,7 +131,7 @@ export default function Client({ product, similar }: { product: Product | null; 
             {product.temporaryUntil&&new Date(product.temporaryUntil).getTime()>Date.now()&&<Countdown until={product.temporaryUntil}/>}
             {soldOut
               ? <div className="w-full md:w-auto px-8 py-4 text-sm uppercase tracking-wide font-semibold bg-[#3A3631] text-white text-center cursor-not-allowed opacity-70">Édition épuisée</div>
-              : <button style={btnStyle} onClick={()=>setAddOpen(true)} className="w-full md:w-auto px-8 py-4 text-sm uppercase tracking-wide font-semibold bg-[#181614] text-white hover:bg-[#B23A24] transition-colors">Choisir un format et ajouter au panier</button>
+              : <div role="button" tabIndex={0} onClick={()=>setAddOpen(true)} onKeyDown={e=>e.key==="Enter"&&setAddOpen(true)} className="w-full md:w-auto px-8 py-4 text-sm uppercase tracking-wide font-semibold bg-[#181614] text-white hover:bg-[#B23A24] transition-colors cursor-pointer inline-block text-center">Choisir un format et ajouter au panier</div>
             }
             {product.allowDedication&&<p className="text-xs text-[#8C8780] mt-4">✎ Une dédicace personnalisée pourra être ajoutée au moment de la commande.</p>}
             <ProductReviews productTitle={product.title}/>
@@ -173,7 +173,7 @@ export default function Client({ product, similar }: { product: Product | null; 
             </div>
             <div className="bg-[#FAFAF8] px-5 py-4 flex items-center justify-between gap-4">
               <p className="text-xs text-[#8C8780]">Aperçu indicatif. Le cadre n&rsquo;est pas inclus.</p>
-              <button style={btnStyle} onClick={()=>setWallOpen(false)} className="text-xs uppercase tracking-wide font-medium text-[#181614] hover:text-[#B23A24]">Fermer</button>
+              <div role="button" tabIndex={0} onClick={()=>setWallOpen(false)} className="text-xs uppercase tracking-wide font-medium text-[#181614] hover:text-[#B23A24] cursor-pointer">Fermer</div>
             </div>
           </div>
         </div>
