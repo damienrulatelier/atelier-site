@@ -23,7 +23,7 @@ export default function SiteHeader() {
   }, []);
   // Fermer le sous-menu atelier si on clique ailleurs
   useEffect(() => {
-    function handleClick(e: MouseEvent) {
+    function handleClick(e: Event) {
       if (atelierRef.current && !atelierRef.current.contains(e.target as Node)) {
         setAtelierOpen(false);
       }
