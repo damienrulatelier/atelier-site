@@ -12,7 +12,7 @@ export default function WelcomePage() {
       <div className="flex-1 flex flex-col items-center justify-center px-6 py-16">
         <div className="text-center mb-16 max-w-xl">
           <p className="text-[11px] uppercase tracking-[0.2em] text-[#B23A24] font-semibold mb-5">
-            Illustration · Bande dessinée · Estampe
+            Illustration · Bande dessinée · Commission
           </p>
           <h1 className="font-serif text-[clamp(36px,7vw,72px)] leading-[1.0] text-[#FAFAF8] mb-6">
             Chaque pièce porte<br />

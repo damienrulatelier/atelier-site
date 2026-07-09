@@ -53,7 +53,7 @@ export default function SiteHeader() {
           <div ref={atelierRef} className="relative">
             <button
               onClick={() => setAtelierOpen(v => !v)}
-              className={`flex items-center gap-1 hover:text-[#181614] transition-colors ${isInAtelier ? "text-[#181614] font-bold" : ""}`}
+              className={`flex items-center gap-1 hover:text-[#181614] transition-colors normal-case ${isInAtelier ? "text-[#181614] font-bold" : ""}`}
             >
               Atelier
               <span className={`text-[8px] transition-transform duration-200 ${atelierOpen ? "rotate-180" : ""}`}>▼</span>
@@ -85,7 +85,7 @@ export default function SiteHeader() {
               </div>
             )}
           </div>
-          <Link href="/commissions" onClick={handleCommissionsClick} className="hover:text-[#181614]">
+          <Link href="/commissions" onClick={handleCommissionsClick} className="hover:text-[#181614] normal-case">
             Commissions
           </Link>
         </nav>
@@ -137,7 +137,7 @@ export default function SiteHeader() {
               </div>
             )}
           </div>
-          <Link href="/commissions" onClick={handleCommissionsClick} className="py-2.5 hover:text-[#181614]">Commissions</Link>
+          <Link href="/commissions" onClick={handleCommissionsClick} className="py-2.5 hover:text-[#181614] normal-case">Commissions</Link>
         </nav>
       )}
     </header>
