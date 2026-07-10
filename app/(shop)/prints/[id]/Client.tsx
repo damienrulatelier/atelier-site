@@ -11,7 +11,7 @@ export default function Client({ product, similar, fromOrig: initialFromOrig = f
   const [addOpen, setAddOpen] = useState(false);
   const [wallOpen, setWallOpen] = useState(false);
   const [zoomOpen, setZoomOpen] = useState(false);
-  const [tab, setTab] = useState<"original" | "print">("original");
+  const [tab, setTab] = useState<"original" | "print">(initialFromOrig ? "original" : "print");
   const [activeImg, setActiveImg] = useState(0);
 
   if (!product) return (
@@ -98,7 +98,7 @@ export default function Client({ product, similar, fromOrig: initialFromOrig = f
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
               {similar.map(p => (
                 <Link key={p.id} href={`/prints/${p.id}`} className="bg-[#FAFAF8] border border-[#DEDAD1] flex flex-col group">
-                  <div className="bg-[#F2F0EA] overflow-hidden aspect-square">
+                  <div className="bg-[#F2F0EA] overflow-hidden" style={{height:"180px"}}>
                     {p.images[0] ? <img src={optimizeImage(p.images[0], 600)} alt={p.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" /> : <div className="w-full h-full flex items-center justify-center text-[#8C8780] text-xs">Pas de photo</div>}
                   </div>
                   <div className="p-4 flex flex-col gap-1">
