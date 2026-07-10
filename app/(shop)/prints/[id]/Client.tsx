@@ -7,7 +7,7 @@ import ImageLightbox from "../../../components/ImageLightbox";
 import { optimizeImage } from "@/lib/cloudinary";
 import ProductReviews from "../../../components/ProductReviews";
 
-export default function Client({ product, similar }: { product: Product | null; similar: Product[] }) {
+export default function Client({ product, similar, fromOrig: initialFromOrig = false }: { product: Product | null; similar: Product[]; fromOrig?: boolean }) {
   const [addOpen, setAddOpen] = useState(false);
   const [wallOpen, setWallOpen] = useState(false);
   const [zoomOpen, setZoomOpen] = useState(false);
@@ -21,15 +21,12 @@ export default function Client({ product, similar }: { product: Product | null; 
     </main>
   );
 
-  const [fromOrig, setFromOrig] = useState(false);
-  useEffect(() => {
-    setFromOrig(new URLSearchParams(window.location.search).get("from") === "originals");
-  }, []);
+  const [fromOrig] = useState(initialFromOrig);
   const hasOrig = (product.imagesOriginal || []).length > 0;
   const isDrop = product.type === "drop" || !!product.temporaryUntil;
   const printPh = (product.imagesPrint || []).length > 0 ? product.imagesPrint! : product.images;
-  // Onglets si : original avec photos print, ou drop avec photos originales
-  const hasTabs = hasOrig && (isDrop || product.type === "original" || fromOrig);
+  // Onglets si : le produit a des photos originales ET des photos print/images
+  const hasTabs = hasOrig && printPh.length > 0;
   const photos = hasTabs 
     ? (tab === "original" ? product.imagesOriginal! : printPh) 
     : fromOrig && hasOrig 
