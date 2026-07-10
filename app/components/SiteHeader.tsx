@@ -3,11 +3,10 @@ import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import CartButton from "./CartButton";
-export default function SiteHeader() {
+export default function SiteHeader({ hasActiveDrop = false }: { hasActiveDrop?: boolean }) {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
   const [atelierOpen, setAtelierOpen] = useState(false);
-  const [hasActiveDrop, setHasActiveDrop] = useState(false);
   const atelierRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
