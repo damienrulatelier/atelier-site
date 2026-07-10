@@ -20,6 +20,10 @@ export default function Client({ product, similar }: { product: Product | null; 
     </main>
   );
 
+  const [fromOrig, setFromOrig] = useState(false);
+  useEffect(() => {
+    setFromOrig(new URLSearchParams(window.location.search).get("from") === "originals");
+  }, []);
   const hasOrig = (product.imagesOriginal || []).length > 0;
   const isDrop = product.type === "drop" || !!product.temporaryUntil;
   const printPh = (product.imagesPrint || []).length > 0 ? product.imagesPrint! : product.images;
