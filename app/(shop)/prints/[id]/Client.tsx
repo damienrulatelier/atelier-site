@@ -9,6 +9,7 @@ import ProductReviews from "../../../components/ProductReviews";
 
 export default function Client({ product, similar }: { product: Product | null; similar: Product[] }) {
   const [addOpen, setAddOpen] = useState(false);
+  const [wallOpen, setWallOpen] = useState(false);
   const [zoomOpen, setZoomOpen] = useState(false);
   const [tab, setTab] = useState<"original" | "print">("original");
   const [activeImg, setActiveImg] = useState(0);
@@ -27,7 +28,8 @@ export default function Client({ product, similar }: { product: Product | null; 
   const hasOrig = (product.imagesOriginal || []).length > 0;
   const isDrop = product.type === "drop" || !!product.temporaryUntil;
   const printPh = (product.imagesPrint || []).length > 0 ? product.imagesPrint! : product.images;
-  const hasTabs = hasOrig && printPh.length > 0 && (isDrop || (product.imagesPrint || []).length > 0);
+  // Onglets si : original avec photos print, ou drop avec photos originales
+  const hasTabs = hasOrig && (isDrop || product.type === "original" || fromOrig);
   const photos = hasTabs 
     ? (tab === "original" ? product.imagesOriginal! : printPh) 
     : fromOrig && hasOrig 
@@ -73,6 +75,11 @@ export default function Client({ product, similar }: { product: Product | null; 
                 ))}
               </div>
             )}
+            {product.wallPreviewEnabled && product.images.length > 0 && (
+              <a href="#" onClick={(e) => { e.preventDefault(); setWallOpen(true); }} className="mt-4 text-xs uppercase tracking-wide font-medium text-[#3A3631] border border-[#DEDAD1] px-4 py-2.5 hover:border-[#181614] transition-colors inline-flex items-center gap-2">
+                🖼️ Voir en situation sur un mur
+              </a>
+            )}
           </div>
           <div>
             <h1 className="font-serif text-[32px] md:text-[38px] leading-tight text-[#181614] mb-2">{product.title}</h1>
@@ -109,6 +116,23 @@ export default function Client({ product, similar }: { product: Product | null; 
       )}
       {zoomOpen && <ImageLightbox images={photos} title={product.title} onClose={() => setZoomOpen(false)} />}
       {addOpen && <AddToCartModal product={product} onClose={() => setAddOpen(false)} />}
+      {wallOpen && (
+        <div className="fixed inset-0 z-[70] bg-[#181614]/70 flex items-center justify-center p-6" onClick={() => setWallOpen(false)}>
+          <div className="max-w-lg w-full" onClick={e => e.stopPropagation()}>
+            <div className="relative aspect-[4/3] flex items-center justify-center overflow-hidden" style={{background:"linear-gradient(165deg,#EDEAE2 0%,#E4E0D5 55%,#DCD7C9 100%)"}}>
+              <div className="relative w-[46%] p-2 shadow-[0_10px_30px_rgba(24,22,20,0.35)]" style={{backgroundColor:"#181614"}}>
+                <div className="w-full border-[3px]" style={{borderColor:"#181614"}}>
+                  <img src={optimizeImage(product.images[0], 800)} alt={product.title} className="w-full h-auto block" />
+                </div>
+              </div>
+            </div>
+            <div className="bg-[#FAFAF8] px-5 py-4 flex items-center justify-between gap-4">
+              <p className="text-xs text-[#8C8780]">Aperçu indicatif. Le cadre n&rsquo;est pas inclus.</p>
+              <a href="#" onClick={(e) => { e.preventDefault(); setWallOpen(false); }} className="text-xs uppercase tracking-wide font-medium text-[#181614] hover:text-[#B23A24]">Fermer</a>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }
