@@ -33,7 +33,7 @@ export default function SiteHeader({ hasActiveDrop = false }: { hasActiveDrop?: 
   const isInAtelier = pathname?.startsWith("/atelier") || pathname === "/nouveautes" ||
     pathname?.startsWith("/prints") || pathname?.startsWith("/originals");
   return (
-    <header className="sticky top-0 z-30 bg-[#FAFAF8]/95 backdrop-blur-sm border-b border-[#DEDAD1]">
+    <header className="relative z-30 bg-[#FAFAF8] border-b border-[#DEDAD1]">
       <div className="max-w-6xl mx-auto px-6 md:px-8 h-[84px] flex items-center justify-between">
         <Link href="/" className="font-serif italic text-xl text-[#181614]" onClick={() => { setMenuOpen(false); setAtelierOpen(false); }}>
           Damien Rul <span className="text-[#B23A24] not-italic">·</span> Atelier

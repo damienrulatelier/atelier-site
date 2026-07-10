@@ -24,7 +24,11 @@ export default function Client({ product, similar }: { product: Product | null; 
   const isDrop = product.type === "drop" || !!product.temporaryUntil;
   const printPh = (product.imagesPrint || []).length > 0 ? product.imagesPrint! : product.images;
   const hasTabs = hasOrig && printPh.length > 0 && (isDrop || (product.imagesPrint || []).length > 0);
-  const photos = hasTabs ? (tab === "original" ? product.imagesOriginal! : printPh) : product.images;
+  const photos = hasTabs 
+    ? (tab === "original" ? product.imagesOriginal! : printPh) 
+    : fromOrig && hasOrig 
+    ? product.imagesOriginal! 
+    : product.images;
   const soldOut = product.editionTotal > 0 && product.editionSold >= product.editionTotal;
 
   function priceFrom(p: Product) {
@@ -86,8 +90,8 @@ export default function Client({ product, similar }: { product: Product | null; 
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
               {similar.map(p => (
                 <Link key={p.id} href={`/prints/${p.id}`} className="bg-[#FAFAF8] border border-[#DEDAD1] flex flex-col group">
-                  <div className="bg-[#F2F0EA] overflow-hidden">
-                    {p.images[0] ? <img src={optimizeImage(p.images[0], 600)} alt={p.title} className="w-full h-auto block group-hover:scale-105 transition-transform duration-500" /> : <div className="aspect-square flex items-center justify-center text-[#8C8780] text-xs">Pas de photo</div>}
+                  <div className="bg-[#F2F0EA] overflow-hidden aspect-square">
+                    {p.images[0] ? <img src={optimizeImage(p.images[0], 600)} alt={p.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" /> : <div className="w-full h-full flex items-center justify-center text-[#8C8780] text-xs">Pas de photo</div>}
                   </div>
                   <div className="p-4 flex flex-col gap-1">
                     <h3 className="font-serif text-[15px] text-[#181614] group-hover:text-[#B23A24] transition-colors truncate">{p.title}</h3>
