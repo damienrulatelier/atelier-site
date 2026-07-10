@@ -28,39 +28,30 @@ type CartContextValue = {
 };
 const CartContext = createContext<CartContextValue | null>(null);
 const STORAGE_KEY = "atelier_cart_v1";
+function safeGet(): CartLine[] {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]"); } catch { return []; }
+}
+function safeSet(lines: CartLine[]) {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(lines)); } catch { /* ignore */ }
+}
 export function CartProvider({ children }: { children: ReactNode }) {
   const [lines, setLines] = useState<CartLine[]>([]);
   const [isOpen, setIsOpen] = useState(false);
-  const [hydrated, setHydrated] = useState(false);
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) setLines(JSON.parse(raw));
-    } catch { /* ignore */ }
-    setHydrated(true);
+    setLines(safeGet());
   }, []);
   useEffect(() => {
-    if (!hydrated) return;
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(lines));
-    } catch { /* ignore */ }
-  }, [lines, hydrated]);
+    safeSet(lines);
+  }, [lines]);
   function addLine(input: Omit<CartLine, "lineId" | "qty">) {
-    setLines((prev) => {
-      const newLine: CartLine = {
-        ...input,
-        lineId: "l_" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
-        qty: 1,
-      };
-      return [...prev, newLine];
-    });
+    setLines(prev => [...prev, { ...input, lineId: "l_" + Date.now().toString(36) + Math.random().toString(36).slice(2,6), qty: 1 }]);
     setIsOpen(true);
   }
   function updateQty(lineId: string, delta: number) {
-    setLines((prev) => prev.map((l) => l.lineId === lineId ? { ...l, qty: l.qty + delta } : l).filter((l) => l.qty > 0));
+    setLines(prev => prev.map(l => l.lineId === lineId ? { ...l, qty: l.qty + delta } : l).filter(l => l.qty > 0));
   }
   function removeLine(lineId: string) {
-    setLines((prev) => prev.filter((l) => l.lineId !== lineId));
+    setLines(prev => prev.filter(l => l.lineId !== lineId));
   }
   function clear() {
     setLines([]);
@@ -76,6 +67,6 @@ export function CartProvider({ children }: { children: ReactNode }) {
 }
 export function useCart() {
   const ctx = useContext(CartContext);
-  if (!ctx) throw new Error("useCart doit être utilisé à l'intérieur d'un CartProvider.");
+  if (!ctx) throw new Error("useCart must be inside CartProvider");
   return ctx;
 }
