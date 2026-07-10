@@ -124,7 +124,6 @@ export default function Client({ product, similar, fromOrig: initialFromOrig = f
                     {p.images[0] ? <img src={optimizeImage(p.images[0], 600)} alt={p.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" /> : <div className="w-full h-full flex items-center justify-center text-[#8C8780] text-xs">Pas de photo</div>}
                     </div>
                   </div>
-                  </div>
                   <div className="p-4 flex flex-col gap-1">
                     <h3 className="font-serif text-[15px] text-[#181614] group-hover:text-[#B23A24] transition-colors truncate">{p.title}</h3>
                     <span className="font-mono text-[13px] text-[#3A3631]">dès {priceFrom(p).toFixed(2).replace(".", ",")} €</span>
