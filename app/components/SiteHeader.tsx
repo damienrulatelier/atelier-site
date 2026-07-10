@@ -16,10 +16,8 @@ export default function SiteHeader({ hasActiveDrop = false }: { hasActiveDrop?: 
       }
     }
     document.addEventListener("mousedown", handleClick);
-    document.addEventListener("touchstart", handleClick);
     return () => {
       document.removeEventListener("mousedown", handleClick);
-      document.removeEventListener("touchstart", handleClick);
     };
   }, []);
   function handleCommissionsClick(e: React.MouseEvent) {
