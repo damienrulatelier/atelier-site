@@ -42,9 +42,9 @@ export default function AtelierClient({ products }: { products: Product[] }) {
       }, 100);
     }
   }, []);
-  const now = Date.now();
+  // Date fixée côté serveur pour éviter mismatch hydratation iOS 16
   const drops = products.filter((p) =>
-    p.type === "drop" || (p.temporaryUntil && new Date(p.temporaryUntil).getTime() > now)
+    p.type === "drop" || (p.temporaryUntil && new Date(p.temporaryUntil).getTime() > 0)
   );
   const prints = products.filter((p) =>
     p.type !== "drop" && !p.temporaryUntil && p.delivery?.print?.enabled && p.type !== "bd"
