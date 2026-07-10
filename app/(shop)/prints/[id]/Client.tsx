@@ -10,6 +10,7 @@ import ProductReviews from "../../../components/ProductReviews";
 export default function Client({ product, similar, fromOrig: initialFromOrig = false }: { product: Product | null; similar: Product[]; fromOrig?: boolean }) {
   const [addOpen, setAddOpen] = useState(false);
   const [wallOpen, setWallOpen] = useState(false);
+  const [frame, setFrame] = useState("#181614");
   const [zoomOpen, setZoomOpen] = useState(false);
   const [tab, setTab] = useState<"original" | "print">(initialFromOrig ? "original" : "print");
   const [activeImg, setActiveImg] = useState(0);
@@ -22,6 +23,26 @@ export default function Client({ product, similar, fromOrig: initialFromOrig = f
   );
 
   const [fromOrig] = useState(initialFromOrig);
+
+  useEffect(() => {
+    const src = product?.images[0];
+    if (!src) return;
+    const img = new window.Image();
+    img.crossOrigin = "anonymous";
+    img.onload = () => {
+      try {
+        const c = document.createElement("canvas"); c.width = c.height = 40;
+        const x = c.getContext("2d")!;
+        x.drawImage(img, 0, 0, 40, 40);
+        const d = x.getImageData(0,0,40,40).data;
+        let r=0,g=0,b=0;
+        for (let i=0;i<d.length;i+=4){r+=d[i];g+=d[i+1];b+=d[i+2];}
+        const n=1600;
+        setFrame(`rgb(${Math.round(r/n*.55)},${Math.round(g/n*.55)},${Math.round(b/n*.55)})`);
+      } catch { setFrame("#181614"); }
+    };
+    img.src = src;
+  }, [product?.images]);
   const hasOrig = (product.imagesOriginal || []).length > 0;
   const isDrop = product.type === "drop" || !!product.temporaryUntil;
   const printPh = (product.imagesPrint || []).length > 0 ? product.imagesPrint! : product.images;
@@ -98,8 +119,11 @@ export default function Client({ product, similar, fromOrig: initialFromOrig = f
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
               {similar.map(p => (
                 <Link key={p.id} href={`/prints/${p.id}`} className="bg-[#FAFAF8] border border-[#DEDAD1] flex flex-col group">
-                  <div className="bg-[#F2F0EA] overflow-hidden" style={{height:"180px"}}>
+                  <div className="bg-[#F2F0EA] overflow-hidden relative" style={{paddingBottom:"100%"}}>
+                    <div className="absolute inset-0">
                     {p.images[0] ? <img src={optimizeImage(p.images[0], 600)} alt={p.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" /> : <div className="w-full h-full flex items-center justify-center text-[#8C8780] text-xs">Pas de photo</div>}
+                    </div>
+                  </div>
                   </div>
                   <div className="p-4 flex flex-col gap-1">
                     <h3 className="font-serif text-[15px] text-[#181614] group-hover:text-[#B23A24] transition-colors truncate">{p.title}</h3>
@@ -117,8 +141,8 @@ export default function Client({ product, similar, fromOrig: initialFromOrig = f
         <div className="fixed inset-0 z-[70] bg-[#181614]/70 flex items-center justify-center p-6" onClick={() => setWallOpen(false)}>
           <div className="max-w-lg w-full" onClick={e => e.stopPropagation()}>
             <div className="relative aspect-[4/3] flex items-center justify-center overflow-hidden" style={{background:"linear-gradient(165deg,#EDEAE2 0%,#E4E0D5 55%,#DCD7C9 100%)"}}>
-              <div className="relative w-[46%] p-2 shadow-[0_10px_30px_rgba(24,22,20,0.35)]" style={{backgroundColor:"#181614"}}>
-                <div className="w-full border-[3px]" style={{borderColor:"#181614"}}>
+              <div className="relative w-[46%] p-2 shadow-[0_10px_30px_rgba(24,22,20,0.35)]" style={{backgroundColor:frame}}>
+                <div className="w-full border-[3px]" style={{borderColor:frame}}>
                   <img src={optimizeImage(product.images[0], 800)} alt={product.title} className="w-full h-auto block" />
                 </div>
               </div>
